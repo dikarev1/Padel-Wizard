@@ -12,3 +12,4 @@ class Settings(BaseSettings):
     }
 
 settings = Settings()
+print("TOKEN:", settings.bot_token)
