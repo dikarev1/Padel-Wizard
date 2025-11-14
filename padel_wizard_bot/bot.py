@@ -2,6 +2,10 @@ import asyncio
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import CommandStart
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
+from config import settings
+from logging_config import setup_logging
+
+setup_logging(settings.log_level)
 
 BOT_TOKEN = "8373154970:AAGYoJqSLU2Nak-BMoh9UDyYpjiim1J1Vrs"
 
@@ -46,3 +50,5 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
+
