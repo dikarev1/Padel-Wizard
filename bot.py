@@ -15,8 +15,8 @@ async def cmd_start(message: Message):
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="Launch the wizard",      # здесь можно поменять текст кнопки
-                    callback_data="wizard_launch"  # внутренний идентификатор
+                    text="Launch the wizard",
+                    callback_data="wizard_launch"
                 )
             ]
         ]
@@ -31,8 +31,12 @@ async def cmd_start(message: Message):
 
 @dp.callback_query(F.data == "wizard_launch")
 async def on_wizard_launch(callback: CallbackQuery):
-    # Здесь позже начнем сам опросник
-    await callback.message.answer("Great, let's begin the questionnaire.")
+    message = callback.message
+    if message is None:
+        await callback.answer()
+        return
+
+    await message.answer("Great, let's begin the questionnaire.")
     await callback.answer()
 
 
