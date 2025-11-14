@@ -11,5 +11,5 @@ class Settings(BaseSettings):
         "env_file_encoding": "utf-8",
     }
 
-settings = Settings()
-print("TOKEN:", settings.bot_token)
+settings = Settings()  # pyright: ignore[reportCallIssue]
+print("BOT_TOKEN:", settings.bot_token[:10], "...")   # защита от полного отображения токена
