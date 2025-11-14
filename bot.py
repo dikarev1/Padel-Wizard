@@ -3,7 +3,7 @@ from aiogram import Bot, Dispatcher, F
 from aiogram.filters import CommandStart
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 
-BOT_TOKEN = "8373154970:AAGYoJqSLU2Nak-BMoh9UDyYpjiim1J1Vrs"
+BOT_TOKEN = "ТОКЕН_ОТ_BOTFATHER_СЮДА"
 
 bot = Bot(BOT_TOKEN)
 dp = Dispatcher()
@@ -32,8 +32,7 @@ async def cmd_start(message: Message):
 @dp.callback_query(F.data == "wizard_launch")
 async def on_wizard_launch(callback: CallbackQuery):
     # Здесь позже начнем сам опросник
-    if callback.message:
-        await callback.message.answer("Great, let's begin the questionnaire.")
+    await callback.message.answer("Great, let's begin the questionnaire.")
     await callback.answer()
 
 
