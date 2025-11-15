@@ -5,6 +5,12 @@ from dataclasses import dataclass
 from typing import Dict, Iterable, Optional
 
 
+@dataclass(frozen=True)
+class AnswerOption:
+    """Represents a selectable answer in the questionnaire."""
+
+    __slots__ = ("id", "text", "next_question_id")
+
 @dataclass(frozen=True, slots=True)
 class AnswerOption:
     """Represents a selectable answer in the questionnaire."""
@@ -13,6 +19,12 @@ class AnswerOption:
     text: str
     next_question_id: Optional[str]
 
+
+@dataclass(frozen=True)
+class Question:
+    """A questionnaire question with predefined answer options."""
+
+    __slots__ = ("id", "text", "options")
 
 @dataclass(frozen=True, slots=True)
 class Question:
