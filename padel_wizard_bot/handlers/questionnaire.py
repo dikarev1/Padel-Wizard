@@ -14,6 +14,7 @@ from padel_wizard_bot.keyboards.questionnaire import (
 )
 from padel_wizard_bot.services.questionnaire_flow import DEFAULT_FLOW
 from padel_wizard_bot.states.questionnaire import QuestionnaireStates
+from storage.repo import repository
 
 router = Router()
 logger = logging.getLogger(__name__)
@@ -66,6 +67,15 @@ async def on_question_answer(
     )
     await state.update_data(answers=answers)
 
+    session_id = state_data.get("session_id")
+    if session_id is not None:
+        try:
+            await repository.update_answers(int(session_id), answers)
+        except Exception:
+            logger.exception(
+                "Failed to persist answers for session %s", session_id
+            )
+
     next_question_id = DEFAULT_FLOW.resolve_next(
         current_question_id=callback_data.question_id,
         option_id=callback_data.option_id,
@@ -80,6 +90,14 @@ async def on_question_answer(
             )
         else:
             logger.info("Questionnaire completed by unknown user: %s", answers)
+        if session_id is not None:
+            try:
+                await repository.mark_finished(int(session_id))
+            except Exception:
+                logger.exception(
+                    "Failed to mark session %s as finished", session_id
+                )
+
         await state.clear()
         await message.answer(
             "Спасибо! Это финальный экран-заглушка. Здесь появится результат и рекомендации.",
