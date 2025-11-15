@@ -1,6 +1,61 @@
 """Core questionnaire flow definitions for the Padel Wizard bot."""
 from __future__ import annotations
 
+from typing import Dict, Iterable, Optional, Tuple
+
+
+class AnswerOption:
+    """Represents a selectable answer in the questionnaire."""
+
+    __slots__ = ("_id", "_text", "_next_question_id")
+
+    def __init__(self, id: str, text: str, next_question_id: Optional[str]) -> None:
+        self._id = id
+        self._text = text
+        self._next_question_id = next_question_id
+
+    @property
+    def id(self) -> str:
+        return self._id
+
+    @property
+    def text(self) -> str:
+        return self._text
+
+    @property
+    def next_question_id(self) -> Optional[str]:
+        return self._next_question_id
+
+
+class Question:
+    """A questionnaire question with predefined answer options."""
+
+    __slots__ = ("_id", "_text", "_options")
+
+    def __init__(self, id: str, text: str, options: Iterable[AnswerOption]) -> None:
+        self._id = id
+        self._text = text
+        self._options = tuple(options)
+        if not self._options:
+            raise ValueError("Question must contain at least one answer option")
+
+    @property
+    def id(self) -> str:
+        return self._id
+
+    @property
+    def text(self) -> str:
+        return self._text
+
+    @property
+    def options(self) -> Tuple[AnswerOption, ...]:
+        return self._options
+
+    def get_option(self, option_id: str) -> AnswerOption:
+        for option in self._options:
+            if option.id == option_id:
+                return option
+        raise KeyError(f"Option {option_id!r} is not defined for question {self._id!r}")
 from dataclasses import dataclass
 from typing import Dict, Iterable, Optional
 
