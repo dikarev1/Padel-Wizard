@@ -1,75 +1,13 @@
-"""Core questionnaire flow definitions for the Padel Wizard bot."""
 from __future__ import annotations
-
+from dataclasses import dataclass
 from typing import Dict, Iterable, Optional, Tuple
 
 
-class AnswerOption:
-    """Represents a selectable answer in the questionnaire."""
-
-    __slots__ = ("_id", "_text", "_next_question_id")
-
-    def __init__(self, id: str, text: str, next_question_id: Optional[str]) -> None:
-        self._id = id
-        self._text = text
-        self._next_question_id = next_question_id
-
-    @property
-    def id(self) -> str:
-        return self._id
-
-    @property
-    def text(self) -> str:
-        return self._text
-
-    @property
-    def next_question_id(self) -> Optional[str]:
-        return self._next_question_id
-
-
-class Question:
-    """A questionnaire question with predefined answer options."""
-
-    __slots__ = ("_id", "_text", "_options")
-
-    def __init__(self, id: str, text: str, options: Iterable[AnswerOption]) -> None:
-        self._id = id
-        self._text = text
-        self._options = tuple(options)
-        if not self._options:
-            raise ValueError("Question must contain at least one answer option")
-
-    @property
-    def id(self) -> str:
-        return self._id
-
-    @property
-    def text(self) -> str:
-        return self._text
-
-    @property
-    def options(self) -> Tuple[AnswerOption, ...]:
-        return self._options
-
-    def get_option(self, option_id: str) -> AnswerOption:
-        for option in self._options:
-            if option.id == option_id:
-                return option
-        raise KeyError(f"Option {option_id!r} is not defined for question {self._id!r}")
-from dataclasses import dataclass
-from typing import Dict, Iterable, Optional
-
+# ---------- MODELS ----------
 
 @dataclass(frozen=True)
 class AnswerOption:
     """Represents a selectable answer in the questionnaire."""
-
-    __slots__ = ("id", "text", "next_question_id")
-
-@dataclass(frozen=True, slots=True)
-class AnswerOption:
-    """Represents a selectable answer in the questionnaire."""
-
     id: str
     text: str
     next_question_id: Optional[str]
@@ -78,16 +16,9 @@ class AnswerOption:
 @dataclass(frozen=True)
 class Question:
     """A questionnaire question with predefined answer options."""
-
-    __slots__ = ("id", "text", "options")
-
-@dataclass(frozen=True, slots=True)
-class Question:
-    """A questionnaire question with predefined answer options."""
-
     id: str
     text: str
-    options: tuple[AnswerOption, ...]
+    options: Tuple[AnswerOption, ...]
 
     def get_option(self, option_id: str) -> AnswerOption:
         for option in self.options:
@@ -96,11 +27,13 @@ class Question:
         raise KeyError(f"Option {option_id!r} is not defined for question {self.id!r}")
 
 
+# ---------- FLOW ----------
+
 class QuestionnaireFlow:
     """Stores questionnaire structure and navigation helpers."""
 
     def __init__(self, questions: Iterable[Question], first_question_id: str) -> None:
-        self._questions: Dict[str, Question] = {question.id: question for question in questions}
+        self._questions: Dict[str, Question] = {q.id: q for q in questions}
         if first_question_id not in self._questions:
             raise ValueError("First question id must exist in the questionnaire")
         self._first_question_id = first_question_id
@@ -121,15 +54,15 @@ class QuestionnaireFlow:
         return option.next_question_id
 
 
-def build_default_flow() -> QuestionnaireFlow:
-    """Return the default wizard questionnaire flow configuration."""
+# ---------- DEFAULT FLOW ----------
 
+def build_default_flow() -> QuestionnaireFlow:
     q6 = Question(
         id="q6",
         text="[Placeholder] Question 6 about padel specifics.",
         options=(
-            AnswerOption(id="q6_opt1", text="Sample answer", next_question_id=None),
-            AnswerOption(id="q6_opt2", text="Another sample answer", next_question_id=None),
+            AnswerOption("q6_opt1", "Sample answer", None),
+            AnswerOption("q6_opt2", "Another sample answer", None),
         ),
     )
 
@@ -137,8 +70,8 @@ def build_default_flow() -> QuestionnaireFlow:
         id="q5",
         text="[Placeholder] Question 5 that leads to the final screen.",
         options=(
-            AnswerOption(id="q5_opt1", text="Sample answer", next_question_id="q6"),
-            AnswerOption(id="q5_opt2", text="Another sample answer", next_question_id="q6"),
+            AnswerOption("q5_opt1", "Sample answer", "q6"),
+            AnswerOption("q5_opt2", "Another sample answer", "q6"),
         ),
     )
 
@@ -146,8 +79,8 @@ def build_default_flow() -> QuestionnaireFlow:
         id="q4",
         text="[Placeholder] Question 4 about tactical awareness.",
         options=(
-            AnswerOption(id="q4_opt1", text="Sample answer", next_question_id="q5"),
-            AnswerOption(id="q4_opt2", text="Another sample answer", next_question_id="q5"),
+            AnswerOption("q4_opt1", "Sample answer", "q5"),
+            AnswerOption("q4_opt2", "Another sample answer", "q5"),
         ),
     )
 
@@ -155,8 +88,8 @@ def build_default_flow() -> QuestionnaireFlow:
         id="q3",
         text="[Placeholder] Question 3 about technical skills.",
         options=(
-            AnswerOption(id="q3_opt1", text="Sample answer", next_question_id="q4"),
-            AnswerOption(id="q3_opt2", text="Another sample answer", next_question_id="q4"),
+            AnswerOption("q3_opt1", "Sample answer", "q4"),
+            AnswerOption("q3_opt2", "Another sample answer", "q4"),
         ),
     )
 
@@ -164,8 +97,8 @@ def build_default_flow() -> QuestionnaireFlow:
         id="q2",
         text="[Placeholder] Question 2 about padel experience.",
         options=(
-            AnswerOption(id="q2_opt1", text="Sample answer", next_question_id="q3"),
-            AnswerOption(id="q2_opt2", text="Another sample answer", next_question_id="q3"),
+            AnswerOption("q2_opt1", "Sample answer", "q3"),
+            AnswerOption("q2_opt2", "Another sample answer", "q3"),
         ),
     )
 
@@ -173,8 +106,8 @@ def build_default_flow() -> QuestionnaireFlow:
         id="q1.1",
         text="[Placeholder] Question 1.1 requesting details about racket sport experience.",
         options=(
-            AnswerOption(id="q1_1_opt1", text="Sample answer", next_question_id="q2"),
-            AnswerOption(id="q1_1_opt2", text="Another sample answer", next_question_id="q2"),
+            AnswerOption("q1_1_opt1", "Sample answer", "q2"),
+            AnswerOption("q1_1_opt2", "Another sample answer", "q2"),
         ),
     )
 
@@ -182,8 +115,8 @@ def build_default_flow() -> QuestionnaireFlow:
         id="q1",
         text="[Placeholder] Question 1 asking about racket sport experience.",
         options=(
-            AnswerOption(id="has_experience", text="Yes, I have racket sport experience", next_question_id="q1.1"),
-            AnswerOption(id="no_experience", text="No, padel is my first racket sport", next_question_id="q2"),
+            AnswerOption("has_experience", "Yes, I have racket sport experience", "q1.1"),
+            AnswerOption("no_experience", "No, padel is my first racket sport", "q2"),
         ),
     )
 
@@ -191,5 +124,6 @@ def build_default_flow() -> QuestionnaireFlow:
         questions=(q1, q1_1, q2, q3, q4, q5, q6),
         first_question_id="q1",
     )
+
 
 DEFAULT_FLOW = build_default_flow()
