@@ -68,7 +68,47 @@ async def on_wizard_launch(callback: CallbackQuery):
         await callback.answer()
         return
 
-    await message.answer("Great, let's begin the questionnaire.")
+    options_keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="Playing well",
+                    callback_data="playing_well"
+                ),
+                InlineKeyboardButton(
+                    text="Playing badly",
+                    callback_data="playing_badly"
+                )
+            ]
+        ]
+    )
+
+    await message.answer(
+        "Great, let's begin the questionnaire.\n\n"
+        "How are you playing today?",
+        reply_markup=options_keyboard
+    )
+    await callback.answer()
+
+
+@dp.callback_query(F.data.in_({"playing_well", "playing_badly"}))
+async def on_playing_state_chosen(callback: CallbackQuery):
+    user = callback.from_user
+    if user:
+        logger.info(
+            "User %s selected %s",
+            f"id={user.id}, username={user.username!r}",
+            callback.data
+        )
+    else:
+        logger.info("Playing state selected by an unknown user: %s", callback.data)
+
+    message = callback.message
+    if message is None:
+        await callback.answer()
+        return
+
+    await message.answer("Thanks for finishing the wizard!")
     await callback.answer()
 
 
