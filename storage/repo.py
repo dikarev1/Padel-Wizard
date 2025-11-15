@@ -8,6 +8,7 @@ import sqlite3
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Callable, Iterable, Optional, cast
+from typing import Any, Callable, Iterable, Optional
 
 from .db import DB_PATH, initialize_database
 
@@ -84,6 +85,7 @@ class StorageRepository:
                 telegram_id=telegram_id,
                 created_at=now,
             )
+            return UserRecord(id=cursor.lastrowid, telegram_id=telegram_id, created_at=now)
 
         return await self._run(operation)
 
@@ -98,6 +100,7 @@ class StorageRepository:
             row = cursor.fetchone()
             if row:
                 user_id = cast(int, row["id"])
+                user_id = row["id"]
             else:
                 cursor = connection.execute(
                     "INSERT INTO users (telegram_id, created_at) VALUES (?, ?)",
@@ -213,6 +216,16 @@ class StorageRepository:
                 started_at=cast(str, row["started_at"]),
                 finished_at=cast(Optional[str], row["finished_at"]),
                 updated_at=cast(str, row["updated_at"]),
+                id=row["id"],
+                session_number=row["session_number"],
+                user_id=row["user_id"],
+                answers=json.loads(row["answers_json"] or "[]"),
+                interim_rating=row["interim_rating"],
+                finished=bool(row["finished"]),
+                final_level=row["final_level"],
+                started_at=row["started_at"],
+                finished_at=row["finished_at"],
+                updated_at=row["updated_at"],
             )
 
         return await self._run(operation)
