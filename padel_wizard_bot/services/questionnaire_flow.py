@@ -56,6 +56,44 @@ class Question:
             if option.id == option_id:
                 return option
         raise KeyError(f"Option {option_id!r} is not defined for question {self._id!r}")
+from dataclasses import dataclass
+from typing import Dict, Iterable, Optional
+
+
+@dataclass(frozen=True)
+class AnswerOption:
+    """Represents a selectable answer in the questionnaire."""
+
+    __slots__ = ("id", "text", "next_question_id")
+
+@dataclass(frozen=True, slots=True)
+class AnswerOption:
+    """Represents a selectable answer in the questionnaire."""
+
+    id: str
+    text: str
+    next_question_id: Optional[str]
+
+
+@dataclass(frozen=True)
+class Question:
+    """A questionnaire question with predefined answer options."""
+
+    __slots__ = ("id", "text", "options")
+
+@dataclass(frozen=True, slots=True)
+class Question:
+    """A questionnaire question with predefined answer options."""
+
+    id: str
+    text: str
+    options: tuple[AnswerOption, ...]
+
+    def get_option(self, option_id: str) -> AnswerOption:
+        for option in self.options:
+            if option.id == option_id:
+                return option
+        raise KeyError(f"Option {option_id!r} is not defined for question {self.id!r}")
 
 
 class QuestionnaireFlow:
