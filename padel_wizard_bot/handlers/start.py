@@ -11,6 +11,7 @@ from aiogram.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardBut
 from padel_wizard_bot.keyboards.questionnaire import build_question_keyboard
 from padel_wizard_bot.services.questionnaire_flow import DEFAULT_FLOW
 from padel_wizard_bot.states.questionnaire import QuestionnaireStates
+from storage.repo import repository
 
 router = Router()
 logger = logging.getLogger(__name__)
@@ -55,8 +56,24 @@ async def on_wizard_launch(callback: CallbackQuery, state: FSMContext) -> None:
             "User %s pressed 'Начать опросник'",
             f"id={user.id}, username={user.username!r}",
         )
+        try:
+            session = await repository.start_session(user.id)
+        except Exception:
+            logger.exception(
+                "Failed to start questionnaire session for user %s",
+                f"id={user.id}, username={user.username!r}",
+            )
+            session = None
+        else:
+            logger.info(
+                "Started session %s (internal id %s) for user %s",
+                session.session_number,
+                session.id,
+                f"id={user.id}, username={user.username!r}",
+            )
     else:
         logger.info("'Начать опросник' button pressed by an unknown user")
+        session = None
 
     message = callback.message
     if message is None:
@@ -66,10 +83,15 @@ async def on_wizard_launch(callback: CallbackQuery, state: FSMContext) -> None:
     first_question = DEFAULT_FLOW.get_question(DEFAULT_FLOW.first_question_id)
 
     await state.set_state(QuestionnaireStates.waiting_for_answer)
-    await state.update_data(
-        current_question_id=first_question.id,
-        answers=[],
-    )
+    state_payload: dict[str, object] = {
+        "current_question_id": first_question.id,
+        "answers": [],
+    }
+    if session is not None:
+        state_payload["session_id"] = session.id
+        state_payload["session_number"] = session.session_number
+
+    await state.update_data(**state_payload)
 
     keyboard = build_question_keyboard(first_question)
 
