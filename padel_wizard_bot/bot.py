@@ -25,6 +25,15 @@ dp = Dispatcher()
 
 @dp.message(CommandStart())
 async def cmd_start(message: Message):
+    user = message.from_user
+    if user:
+        logger.info(
+            "User %s opened the bot via /start",
+            f"id={user.id}, username={user.username!r}"
+        )
+    else:
+        logger.info("Bot opened via /start by an unknown user")
+
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
             [
@@ -45,6 +54,15 @@ async def cmd_start(message: Message):
 
 @dp.callback_query(F.data == "wizard_launch")
 async def on_wizard_launch(callback: CallbackQuery):
+    user = callback.from_user
+    if user:
+        logger.info(
+            "User %s pressed 'Начать опросник'",
+            f"id={user.id}, username={user.username!r}"
+        )
+    else:
+        logger.info("'Начать опросник' button pressed by an unknown user")
+
     message = callback.message
     if message is None:
         await callback.answer()
