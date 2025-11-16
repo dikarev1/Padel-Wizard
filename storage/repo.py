@@ -18,6 +18,7 @@ class UserRecord:
 
     id: int
     telegram_id: int
+    username: Optional[str]
     created_at: str
 
 
@@ -56,56 +57,57 @@ class StorageRepository:
 
         return await asyncio.to_thread(wrapper)
 
-    async def get_or_create_user(self, telegram_id: int) -> UserRecord:
+    async def get_or_create_user(
+        self, telegram_id: int, username: Optional[str] = None
+    ) -> UserRecord:
         """Return an existing user or create a new record if needed."""
 
         def operation(connection: sqlite3.Connection) -> UserRecord:
             cursor = connection.execute(
-                "SELECT id, telegram_id, created_at FROM users WHERE telegram_id = ?",
+                "SELECT id, telegram_id, username, created_at FROM users WHERE telegram_id = ?",
                 (telegram_id,),
             )
             row = cursor.fetchone()
             if row:
+                stored_username = username if username is not None else row["username"]
+                if stored_username is not None and row["username"] != stored_username:
+                    connection.execute(
+                        "UPDATE users SET username = ? WHERE telegram_id = ?",
+                        (stored_username, telegram_id),
+                    )
+                if username is not None and row["username"] != username:
+                    stored_username = username
                 return UserRecord(
                     id=row["id"],
                     telegram_id=row["telegram_id"],
+                    username=stored_username,
                     created_at=row["created_at"],
                 )
 
             now = datetime.now(timezone.utc).isoformat()
             cursor = connection.execute(
-                "INSERT INTO users (telegram_id, created_at) VALUES (?, ?)",
-                (telegram_id, now),
+                "INSERT INTO users (telegram_id, username, created_at) VALUES (?, ?, ?)",
+                (telegram_id, username, now),
             )
             user_id = cursor.lastrowid
             if user_id is None:
                 raise RuntimeError("Failed to insert user: lastrowid is None")
-            return UserRecord(id=user_id, telegram_id=telegram_id, created_at=now)
+            return UserRecord(
+                id=user_id, telegram_id=telegram_id, username=username, created_at=now
+            )
 
         return await self._run(operation)
 
-    async def start_session(self, telegram_id: int) -> SessionRecord:
+    async def start_session(
+        self, telegram_id: int, username: Optional[str] = None
+    ) -> SessionRecord:
         """Create a new questionnaire session for the given Telegram user ID."""
 
-        def operation(connection: sqlite3.Connection) -> SessionRecord:
-            cursor = connection.execute(
-                "SELECT id FROM users WHERE telegram_id = ?",
-                (telegram_id,),
-            )
-            row = cursor.fetchone()
-            if row:
-                user_id = row["id"]
-            else:
-                cursor = connection.execute(
-                    "INSERT INTO users (telegram_id, created_at) VALUES (?, ?)",
-                    (telegram_id, datetime.now(timezone.utc).isoformat()),
-                )
-                user_id = cursor.lastrowid
-                if user_id is None:
-                    raise RuntimeError("Failed to insert user: lastrowid is None")
+        user = await self.get_or_create_user(telegram_id, username)
 
-            if user_id is None:
-                raise RuntimeError("Failed to get user_id: user_id is None")
+        def operation(connection: sqlite3.Connection) -> SessionRecord:
+            if user.id is None:
+                raise RuntimeError("Failed to get user_id: user.id is None")
 
             session_number = self._generate_session_number(connection)
             now = datetime.now(timezone.utc).isoformat()
@@ -114,7 +116,13 @@ class StorageRepository:
                     "INSERT INTO sessions (session_number, user_id, answers_json, started_at, "
                     "updated_at) VALUES (?, ?, ?, ?, ?)"
                 ),
-                (session_number, user_id, json.dumps([], ensure_ascii=False), now, now),
+                (
+                    session_number,
+                    user.id,
+                    json.dumps([], ensure_ascii=False),
+                    now,
+                    now,
+                ),
             )
             session_id = cursor.lastrowid
             if session_id is None:
@@ -122,7 +130,7 @@ class StorageRepository:
             return SessionRecord(
                 id=session_id,
                 session_number=session_number,
-                user_id=user_id,
+                user_id=user.id,
                 answers=[],
                 interim_rating=None,
                 finished=False,
