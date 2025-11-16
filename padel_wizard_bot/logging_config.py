@@ -1,9 +1,24 @@
 import logging
 import logging.handlers
 from pathlib import Path
+from typing import Union
 
 
-def setup_logging(level: str = "INFO") -> None:
+def _normalize_level(level: Union[str, int]) -> int:
+    """Convert logging level values to an integer supported by logging."""
+
+    if isinstance(level, int):
+        return level
+
+    if isinstance(level, str):
+        resolved_level = logging.getLevelName(level.upper())
+        if isinstance(resolved_level, int):
+            return resolved_level
+
+    raise ValueError(f"Unsupported log level: {level!r}")
+
+
+def setup_logging(level: Union[str, int] = "INFO") -> None:
     """
     Настраивает логирование для бота.
     Использует два потока: файл и консоль.
@@ -20,10 +35,12 @@ def setup_logging(level: str = "INFO") -> None:
         datefmt="%Y-%m-%d %H:%M:%S"
     )
 
+    numeric_level = _normalize_level(level)
+
     # Консольный поток
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(formatter)
-    console_handler.setLevel(level)
+    console_handler.setLevel(numeric_level)
 
     # Файловый поток с ротацией
     file_handler = logging.handlers.RotatingFileHandler(
@@ -33,12 +50,12 @@ def setup_logging(level: str = "INFO") -> None:
         encoding="utf-8"
     )
     file_handler.setFormatter(formatter)
-    file_handler.setLevel(level)
+    file_handler.setLevel(numeric_level)
 
     # Базовая настройка логгера
     root = logging.getLogger()
     root.handlers.clear()
-    root.setLevel(level)
+    root.setLevel(numeric_level)
     root.addHandler(console_handler)
     root.addHandler(file_handler)
 
