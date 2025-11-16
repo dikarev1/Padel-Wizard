@@ -57,7 +57,7 @@ async def on_wizard_launch(callback: CallbackQuery, state: FSMContext) -> None:
             f"id={user.id}, username={user.username!r}",
         )
         try:
-            session = await repository.start_session(user.id)
+            session = await repository.start_session(user.id, user.username)
         except Exception:
             logger.exception(
                 "Failed to start questionnaire session for user %s",
