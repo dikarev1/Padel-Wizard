@@ -6,12 +6,9 @@ from typing import Any
 
 from aiogram import Router
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery
+from aiogram.types import Message, ReplyKeyboardRemove
 
-from padel_wizard_bot.keyboards.questionnaire import (
-    QuestionnaireAnswerCallback,
-    build_question_keyboard,
-)
+from padel_wizard_bot.keyboards.questionnaire import build_question_keyboard
 from padel_wizard_bot.services.questionnaire_flow import DEFAULT_FLOW
 from padel_wizard_bot.states.questionnaire import QuestionnaireStates
 from storage.repo import repository
@@ -20,49 +17,50 @@ router = Router()
 logger = logging.getLogger(__name__)
 
 
-@router.callback_query(
-    QuestionnaireStates.waiting_for_answer,
-    QuestionnaireAnswerCallback.filter(),
-)
-async def on_question_answer(
-    callback: CallbackQuery,
-    callback_data: QuestionnaireAnswerCallback,
-    state: FSMContext,
-) -> None:
-    user = callback.from_user
+@router.message(QuestionnaireStates.waiting_for_answer)
+async def on_question_answer(message: Message, state: FSMContext) -> None:
+    user = message.from_user
+    state_data = await state.get_data()
+    current_question_id = state_data.get("current_question_id")
+
+    if current_question_id is None:
+        await state.clear()
+        await message.answer(
+            "Опросник ещё не запущен. Нажмите кнопку запуска, чтобы начать."
+        )
+        return
+
+    question = DEFAULT_FLOW.get_question(str(current_question_id))
+    user_answer = (message.text or "").strip()
+
+    option = next(
+        (opt for opt in question.options if opt.text == user_answer), None
+    )
+    if option is None:
+        await message.answer(
+            "Пожалуйста, выберите один из вариантов с клавиатуры ниже."
+        )
+        return
+
     if user:
         logger.info(
             "User %s answered %s with option %s",
             f"id={user.id}, username={user.username!r}",
-            callback_data.question_id,
-            callback_data.option_id,
+            question.id,
+            option.id,
         )
     else:
         logger.info(
             "Question answered by an unknown user: %s -> %s",
-            callback_data.question_id,
-            callback_data.option_id,
+            question.id,
+            option.id,
         )
-
-    message = callback.message
-    if message is None:
-        await callback.answer()
-        return
-
-    state_data = await state.get_data()
-    current_question_id = state_data.get("current_question_id")
-    if current_question_id != callback_data.question_id:
-        await callback.answer(
-            "Этот вопрос больше не активен. Пожалуйста, отвечайте на текущий вопрос.",
-            show_alert=True,
-        )
-        return
 
     answers: list[dict[str, Any]] = list(state_data.get("answers", []))
     answers.append(
         {
-            "question_id": callback_data.question_id,
-            "option_id": callback_data.option_id,
+            "question_id": question.id,
+            "option_id": option.id,
         }
     )
     await state.update_data(answers=answers)
@@ -77,8 +75,8 @@ async def on_question_answer(
             )
 
     next_question_id = DEFAULT_FLOW.resolve_next(
-        current_question_id=callback_data.question_id,
-        option_id=callback_data.option_id,
+        current_question_id=question.id,
+        option_id=option.id,
     )
 
     if next_question_id is None:
@@ -101,8 +99,8 @@ async def on_question_answer(
         await state.clear()
         await message.answer(
             "Спасибо! Это финальный экран-заглушка. Здесь появится результат и рекомендации.",
+            reply_markup=ReplyKeyboardRemove(),
         )
-        await callback.answer()
         return
 
     next_question = DEFAULT_FLOW.get_question(next_question_id)
@@ -113,6 +111,5 @@ async def on_question_answer(
     keyboard = build_question_keyboard(next_question)
     await message.answer(
         next_question.text,
-        reply_markup=keyboard.as_markup(),
+        reply_markup=keyboard.as_markup(resize_keyboard=True, one_time_keyboard=True),
     )
-    await callback.answer()
