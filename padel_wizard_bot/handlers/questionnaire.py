@@ -4,10 +4,17 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from aiogram import Router
+from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, ReplyKeyboardRemove
 
+from padel_wizard_bot.keyboards.questionnaire import (
+    FinalScreenCallback,
+    QuestionnaireAnswerCallback,
+    build_question_keyboard,
+    build_final_keyboard,
+)
+from padel_wizard_bot.handlers.start import cmd_start
 from padel_wizard_bot.keyboards.questionnaire import build_question_keyboard
 from padel_wizard_bot.services.questionnaire_flow import DEFAULT_FLOW
 from padel_wizard_bot.states.questionnaire import QuestionnaireStates
@@ -97,8 +104,18 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
                 )
 
         await state.clear()
+        final_keyboard = build_final_keyboard()
         await message.answer(
             "Спасибо! Это финальный экран-заглушка. Здесь появится результат и рекомендации.",
+            reply_markup=final_keyboard.as_markup(),
+        )
+        if user:
+            logger.info(
+                "User %s saw the final screen", f"id={user.id}, username={user.username!r}"
+            )
+        else:
+            logger.info("Final screen shown to unknown user")
+        await callback.answer()
             reply_markup=ReplyKeyboardRemove(),
         )
         return
@@ -113,3 +130,36 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
         next_question.text,
         reply_markup=keyboard.as_markup(resize_keyboard=True, one_time_keyboard=True),
     )
+    await callback.answer()
+
+
+@router.callback_query(FinalScreenCallback.filter())
+async def on_final_screen_action(
+    callback: CallbackQuery, callback_data: FinalScreenCallback, state: FSMContext
+) -> None:
+    user = callback.from_user
+    action = callback_data.action
+    if user:
+        logger.info(
+            "User %s pressed final screen action %s",
+            f"id={user.id}, username={user.username!r}",
+            action,
+        )
+    else:
+        logger.info(
+            "Final screen action %s triggered by unknown user", action
+        )
+
+    message = callback.message
+    if message is None:
+        await callback.answer()
+        return
+
+    if action == "restart":
+        await state.clear()
+        await cmd_start(message)
+        await callback.answer("Опросник запущен заново")
+        return
+
+    await callback.answer()
+    await message.answer("вот твои советы")
