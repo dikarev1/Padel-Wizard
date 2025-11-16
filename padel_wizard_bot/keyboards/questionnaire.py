@@ -13,7 +13,12 @@ def build_question_keyboard(question: Question) -> ReplyKeyboardBuilder:
     builder = ReplyKeyboardBuilder()
     for option in question.options:
         builder.button(text=option.text)
-    builder.adjust(1)
+
+    if len(question.options) >= 3:
+        builder.adjust(2)
+    else:
+        builder.adjust(1)
+
     return builder
 
 
