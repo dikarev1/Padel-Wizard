@@ -28,10 +28,16 @@ def initialize_database() -> None:
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 telegram_id INTEGER NOT NULL UNIQUE,
+                username TEXT,
                 created_at TEXT NOT NULL
             )
             """
         )
+
+        cursor = connection.execute("PRAGMA table_info(users)")
+        existing_columns = {row[1] for row in cursor.fetchall()}
+        if "username" not in existing_columns:
+            connection.execute("ALTER TABLE users ADD COLUMN username TEXT")
 
         connection.execute(
             """
