@@ -1,29 +1,17 @@
-"""Inline keyboards for questionnaire flow."""
+"""Reply keyboards for questionnaire flow."""
 from __future__ import annotations
 
-from aiogram.filters.callback_data import CallbackData
-from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
 from padel_wizard_bot.services.questionnaire_flow import Question
 
 
-class QuestionnaireAnswerCallback(CallbackData, prefix="qa"):
-    """Callback payload for questionnaire answers."""
+def build_question_keyboard(question: Question) -> ReplyKeyboardBuilder:
+    """Build a reply keyboard with one button per answer option."""
 
-    question_id: str
-    option_id: str
-
-
-def build_question_keyboard(question: Question) -> InlineKeyboardBuilder:
-    builder = InlineKeyboardBuilder()
+    builder = ReplyKeyboardBuilder()
     for option in question.options:
-        builder.button(
-            text=option.text,
-            callback_data=QuestionnaireAnswerCallback(
-                question_id=question.id,
-                option_id=option.id,
-            ),
-        )
+        builder.button(text=option.text)
     builder.adjust(1)
     return builder
 
