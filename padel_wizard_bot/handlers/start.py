@@ -97,6 +97,6 @@ async def on_wizard_launch(callback: CallbackQuery, state: FSMContext) -> None:
 
     await message.answer(
         first_question.text,
-        reply_markup=keyboard.as_markup(),
+        reply_markup=keyboard.as_markup(resize_keyboard=True, one_time_keyboard=True),
     )
     await callback.answer()
