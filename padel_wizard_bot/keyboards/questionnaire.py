@@ -34,3 +34,23 @@ def build_final_keyboard() -> InlineKeyboardBuilder:
     )
     builder.adjust(1)
     return builder
+
+
+class FinalScreenCallback(CallbackData, prefix="final"):
+    """Callback payload for actions on the final screen."""
+
+    action: str
+
+
+def build_final_keyboard() -> InlineKeyboardBuilder:
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="Пройти опросник заново",
+        callback_data=FinalScreenCallback(action="restart"),
+    )
+    builder.button(
+        text="Получить советы для моего уровня",
+        callback_data=FinalScreenCallback(action="advice"),
+    )
+    builder.adjust(1)
+    return builder
