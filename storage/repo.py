@@ -7,13 +7,12 @@ import secrets
 import sqlite3
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any, Callable, Iterable, Optional, cast
 from typing import Any, Callable, Iterable, Optional
 
 from .db import DB_PATH, initialize_database
 
 
-@dataclass(slots=True)
+@dataclass
 class UserRecord:
     """Representation of a user stored in the database."""
 
@@ -22,7 +21,7 @@ class UserRecord:
     created_at: str
 
 
-@dataclass(slots=True)
+@dataclass
 class SessionRecord:
     """Representation of a questionnaire session."""
 
@@ -79,13 +78,9 @@ class StorageRepository:
                 (telegram_id, now),
             )
             user_id = cursor.lastrowid
-            assert user_id is not None, "SQLite cursor must provide lastrowid after insert"
-            return UserRecord(
-                id=cast(int, user_id),
-                telegram_id=telegram_id,
-                created_at=now,
-            )
-            return UserRecord(id=cursor.lastrowid, telegram_id=telegram_id, created_at=now)
+            if user_id is None:
+                raise RuntimeError("Failed to insert user: lastrowid is None")
+            return UserRecord(id=user_id, telegram_id=telegram_id, created_at=now)
 
         return await self._run(operation)
 
@@ -99,7 +94,6 @@ class StorageRepository:
             )
             row = cursor.fetchone()
             if row:
-                user_id = cast(int, row["id"])
                 user_id = row["id"]
             else:
                 cursor = connection.execute(
@@ -107,8 +101,11 @@ class StorageRepository:
                     (telegram_id, datetime.now(timezone.utc).isoformat()),
                 )
                 user_id = cursor.lastrowid
-                assert user_id is not None, "SQLite cursor must provide lastrowid after insert"
-                user_id = cast(int, user_id)
+                if user_id is None:
+                    raise RuntimeError("Failed to insert user: lastrowid is None")
+
+            if user_id is None:
+                raise RuntimeError("Failed to get user_id: user_id is None")
 
             session_number = self._generate_session_number(connection)
             now = datetime.now(timezone.utc).isoformat()
@@ -120,8 +117,8 @@ class StorageRepository:
                 (session_number, user_id, json.dumps([], ensure_ascii=False), now, now),
             )
             session_id = cursor.lastrowid
-            assert session_id is not None, "SQLite cursor must provide lastrowid after insert"
-            session_id = cast(int, session_id)
+            if session_id is None:
+                raise RuntimeError("Failed to insert session: lastrowid is None")
             return SessionRecord(
                 id=session_id,
                 session_number=session_number,
@@ -206,16 +203,6 @@ class StorageRepository:
             if row is None:
                 return None
             return SessionRecord(
-                id=cast(int, row["id"]),
-                session_number=cast(int, row["session_number"]),
-                user_id=cast(int, row["user_id"]),
-                answers=cast(list[dict[str, Any]], json.loads(row["answers_json"] or "[]")),
-                interim_rating=cast(Optional[float], row["interim_rating"]),
-                finished=bool(row["finished"]),
-                final_level=cast(Optional[str], row["final_level"]),
-                started_at=cast(str, row["started_at"]),
-                finished_at=cast(Optional[str], row["finished_at"]),
-                updated_at=cast(str, row["updated_at"]),
                 id=row["id"],
                 session_number=row["session_number"],
                 user_id=row["user_id"],
