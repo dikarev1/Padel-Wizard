@@ -6,7 +6,7 @@ from typing import Any
 
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, ReplyKeyboardRemove
+from aiogram.types import CallbackQuery, Message
 
 from padel_wizard_bot.keyboards.questionnaire import (
     FinalScreenCallback,
@@ -15,7 +15,6 @@ from padel_wizard_bot.keyboards.questionnaire import (
     build_final_keyboard,
 )
 from padel_wizard_bot.handlers.start import cmd_start
-from padel_wizard_bot.keyboards.questionnaire import build_question_keyboard
 from padel_wizard_bot.services.questionnaire_flow import DEFAULT_FLOW
 from padel_wizard_bot.states.questionnaire import QuestionnaireStates
 from storage.repo import repository
@@ -115,9 +114,6 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
             )
         else:
             logger.info("Final screen shown to unknown user")
-        await callback.answer()
-            reply_markup=ReplyKeyboardRemove(),
-        )
         return
 
     next_question = DEFAULT_FLOW.get_question(next_question_id)
@@ -130,7 +126,6 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
         next_question.text,
         reply_markup=keyboard.as_markup(resize_keyboard=True, one_time_keyboard=True),
     )
-    await callback.answer()
 
 
 @router.callback_query(FinalScreenCallback.filter())
