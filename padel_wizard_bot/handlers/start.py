@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 from aiogram import F, Router
 from aiogram.filters import CommandStart
@@ -83,7 +84,7 @@ async def on_wizard_launch(callback: CallbackQuery, state: FSMContext) -> None:
     first_question = DEFAULT_FLOW.get_question(DEFAULT_FLOW.first_question_id)
 
     await state.set_state(QuestionnaireStates.waiting_for_answer)
-    state_payload: dict[str, object] = {
+    state_payload: dict[str, Any] = {
         "current_question_id": first_question.id,
         "answers": [],
     }
@@ -91,7 +92,7 @@ async def on_wizard_launch(callback: CallbackQuery, state: FSMContext) -> None:
         state_payload["session_id"] = session.id
         state_payload["session_number"] = session.session_number
 
-    await state.update_data(**state_payload)
+    await state.update_data(state_payload)
 
     keyboard = build_question_keyboard(first_question)
 

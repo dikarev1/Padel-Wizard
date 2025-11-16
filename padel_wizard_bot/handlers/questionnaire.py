@@ -6,11 +6,10 @@ from typing import Any
 
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery, Message, ReplyKeyboardRemove
 
 from padel_wizard_bot.keyboards.questionnaire import (
     FinalScreenCallback,
-    QuestionnaireAnswerCallback,
     build_question_keyboard,
     build_final_keyboard,
 )
@@ -106,6 +105,10 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
         final_keyboard = build_final_keyboard()
         await message.answer(
             "Спасибо! Это финальный экран-заглушка. Здесь появится результат и рекомендации.",
+            reply_markup=ReplyKeyboardRemove(),
+        )
+        await message.answer(
+            "Выберите действие:",
             reply_markup=final_keyboard.as_markup(),
         )
         if user:
