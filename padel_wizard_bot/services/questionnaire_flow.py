@@ -104,24 +104,39 @@ def build_default_flow() -> QuestionnaireFlow:
 
     q1_1 = Question(
         id="q1.1",
-        text="[Placeholder] Question 1.1 requesting details about racket sport experience.",
+        text="В каком именно виде спорта больше всего опыта?",
         options=(
-            AnswerOption("q1_1_opt1", "Sample answer", "q2"),
-            AnswerOption("q1_1_opt2", "Another sample answer", "q2"),
+            AnswerOption("tennis", "Большой теннис", "q1.2"),
+            AnswerOption("table_tennis", "Настольный теннис", "q1.2"),
+            AnswerOption("badminton", "Бадминтон", "q1.2"),
+            AnswerOption("pickleball", "Пикклбол", "q1.2"),
+            AnswerOption("squash", "Сквош", "q1.2"),
+            AnswerOption("multiple", "Более одного ракетного спорта", "q1.2"),
+        ),
+    )
+
+    q1_2 = Question(
+        id="q1.2",
+        text="Сколько часов опыта?",
+        options=(
+            AnswerOption("hours_10", "10", "q2"),
+            AnswerOption("hours_100", "100", "q2"),
+            AnswerOption("hours_500", "500", "q2"),
+            AnswerOption("hours_1000", "1000", "q2"),
         ),
     )
 
     q1 = Question(
         id="q1",
-        text="[Placeholder] Question 1 asking about racket sport experience.",
+        text="Есть ли опыт в других ракетных видах спорта?",
         options=(
-            AnswerOption("has_experience", "Yes, I have racket sport experience", "q1.1"),
-            AnswerOption("no_experience", "No, padel is my first racket sport", "q2"),
+            AnswerOption("has_experience", "Да, у меня есть опыт", "q1.1"),
+            AnswerOption("no_experience", "Нет, нет опыта", "q2"),
         ),
     )
 
     return QuestionnaireFlow(
-        questions=(q1, q1_1, q2, q3, q4, q5, q6),
+        questions=(q1, q1_1, q1_2, q2, q3, q4, q5, q6),
         first_question_id="q1",
     )
 
