@@ -1,0 +1,60 @@
+"""Helpers for sending and tracking Telegram Business checklists."""
+from __future__ import annotations
+
+import logging
+from typing import Any, Dict, Iterable, List, Tuple
+
+from aiogram import Bot
+
+
+logger = logging.getLogger(__name__)
+
+
+HITS_CHECKLIST_QUESTION_ID = "hits_checklist"
+
+HITS_CHECKLIST_TASKS: Tuple[str, ...] = (
+    "+ Форхенд",
+    "+ Бэкхенд",
+    "+ Воллей, лоб",
+    "+ Бэкхенд-воллей, полуволлей",
+    "+ Ранняя бандежa, ранний смэш, смэш x4",
+    "+ Бахада, ранняя вибора",
+    "+ Ранний ганчо/руло, чикита, укороченный удар",
+    "+ Сильный контроль вращения",
+    "Почти весь доступный арсенал паделя с множеством формаций",
+)
+
+
+def build_checklist_tasks_payload(tasks: Iterable[str]) -> List[Dict[str, str]]:
+    """Convert internal task strings to the payload format."""
+
+    return [{"text": text} for text in tasks]
+
+
+async def send_hits_checklist(bot: Bot, business_connection_id: str, chat_id: int) -> Dict[str, Any]:
+    """Send the hits checklist via raw Telegram Business API call."""
+
+    url = f"https://api.telegram.org/bot{bot.token}/sendChecklist"
+
+    tasks_payload = build_checklist_tasks_payload(HITS_CHECKLIST_TASKS)
+    payload = {
+        "business_connection_id": business_connection_id,
+        "chat_id": chat_id,
+        "checklist": {
+            "tasks": tasks_payload,
+        },
+    }
+
+    async with bot.session.post(url, json=payload) as response:
+        response_data = await response.json()
+
+    if not response_data.get("ok"):
+        logger.warning("Failed to send hits checklist: %s", response_data)
+
+    result = response_data.get("result") or {}
+    checklist_tasks = result.get("checklist", {}).get("tasks", []) if isinstance(result, dict) else []
+    return {
+        "api_response": response_data,
+        "tasks": checklist_tasks,
+        "message_id": result.get("message_id") if isinstance(result, dict) else None,
+    }
