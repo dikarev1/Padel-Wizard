@@ -5,6 +5,7 @@ import logging
 from typing import Any, Dict, Iterable, List, Set
 
 from aiogram import F, Router
+from aiogram.filters import BaseFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message, ReplyKeyboardRemove, Update
 
@@ -26,6 +27,16 @@ from storage.repo import repository
 
 router = Router()
 logger = logging.getLogger(__name__)
+
+
+class HasBusinessConnection(BaseFilter):
+    async def __call__(self, update: Update) -> bool:
+        return bool(getattr(update, "business_connection", None))
+
+
+class HasChecklistDone(BaseFilter):
+    async def __call__(self, update: Update) -> bool:
+        return bool(getattr(update, "checklist_tasks_done", None))
 
 
 async def _finalize_questionnaire(
@@ -138,6 +149,21 @@ async def _start_hits_checklist(
         )
         return
 
+    api_result = checklist_info.get("api_response", {}).get("result", {})
+    checklist = api_result.get("checklist", {}) if isinstance(api_result, dict) else {}
+    tasks_payload = checklist.get("tasks", []) if isinstance(checklist, dict) else []
+    tasks_map = {
+        task_id: text
+        for task in tasks_payload
+        if isinstance(task, dict)
+        and (task_id := task.get("id"))
+        and (text := task.get("text"))
+    }
+    tasks_order = [
+        task.get("text")
+        for task in tasks_payload
+        if isinstance(task, dict) and task.get("text")
+    ]
     tasks_payload = checklist_info.get("tasks", [])
     tasks_map = {task["id"]: task["text"] for task in tasks_payload if "id" in task}
     tasks_order = [task["text"] for task in tasks_payload if "text" in task]
@@ -145,6 +171,9 @@ async def _start_hits_checklist(
         "hits_tasks_map": tasks_map,
         "hits_tasks_order": tasks_order,
     }
+    message_id = api_result.get("message_id") if isinstance(api_result, dict) else None
+    if message_id is not None:
+        payload_to_store["checklist_message_id"] = message_id
     if checklist_info.get("message_id") is not None:
         payload_to_store["checklist_message_id"] = checklist_info["message_id"]
 
@@ -163,6 +192,14 @@ async def _start_hits_checklist(
         logger.info("Hits checklist sent to unknown user")
 
 
+@router.update(HasBusinessConnection())
+async def on_business_connection(update: Update, state: FSMContext) -> None:
+    await state.update_data(business_connection_id=update.business_connection.id)
+
+
+@router.update(HasChecklistDone())
+async def on_checklist_update(update: Update, state: FSMContext) -> None:
+    checklist_update = update.checklist_tasks_done
 @router.update()
 async def on_business_connection(update: Update, state: FSMContext) -> None:
     if update.business_connection:
