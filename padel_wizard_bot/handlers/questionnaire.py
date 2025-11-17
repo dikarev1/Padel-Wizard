@@ -5,6 +5,7 @@ import logging
 from typing import Any, Dict, Iterable, List, Set, cast
 
 from aiogram import Bot, Dispatcher, F, Router
+from aiogram import F, Router
 from aiogram.filters import Filter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import (
@@ -14,6 +15,12 @@ from aiogram.types import (
     ReplyKeyboardRemove,
     Update,
 )
+from typing import Any, Dict, Iterable, List, Set
+
+from aiogram import F, Router
+from aiogram.filters import BaseFilter
+from aiogram.fsm.context import FSMContext
+from aiogram.types import CallbackQuery, Message, ReplyKeyboardRemove, Update
 
 from padel_wizard_bot.keyboards.questionnaire import (
     FinalScreenCallback,
@@ -41,6 +48,12 @@ class HasBusinessConnection(Filter):
 
 
 class HasChecklistDone(Filter):
+class HasBusinessConnection(BaseFilter):
+    async def __call__(self, update: Update) -> bool:
+        return bool(getattr(update, "business_connection", None))
+
+
+class HasChecklistDone(BaseFilter):
     async def __call__(self, update: Update) -> bool:
         return bool(getattr(update, "checklist_tasks_done", None))
 
@@ -153,6 +166,12 @@ async def _start_hits_checklist(
     try:
         checklist_info = await send_hits_checklist(
             bot=bot_instance,
+    try:
+        checklist_info = await send_hits_checklist(
+            bot=bot_instance,
+    try:
+        checklist_info = await send_hits_checklist(
+            bot=message.bot,
             business_connection_id=str(business_connection_id),
             chat_id=message.chat.id,
         )
@@ -181,6 +200,9 @@ async def _start_hits_checklist(
         for task in tasks_payload
         if isinstance(task, dict) and task.get("text")
     ]
+    tasks_payload = checklist_info.get("tasks", [])
+    tasks_map = {task["id"]: task["text"] for task in tasks_payload if "id" in task}
+    tasks_order = [task["text"] for task in tasks_payload if "text" in task]
     payload_to_store: Dict[str, Any] = {
         "hits_tasks_map": tasks_map,
         "hits_tasks_order": tasks_order,
@@ -188,6 +210,8 @@ async def _start_hits_checklist(
     message_id = api_result.get("message_id") if isinstance(api_result, dict) else None
     if message_id is not None:
         payload_to_store["checklist_message_id"] = message_id
+    if checklist_info.get("message_id") is not None:
+        payload_to_store["checklist_message_id"] = checklist_info["message_id"]
 
     await state.update_data(payload_to_store)
 
@@ -214,6 +238,37 @@ async def on_business_connection(
 async def on_checklist_update(update: Update, state: FSMContext) -> None:
     checklist_update = getattr(update, "checklist_tasks_done", None)
     if checklist_update is None or not getattr(checklist_update, "tasks", None):
+@router.event(HasBusinessConnection())
+async def on_business_connection(update: Update, state: FSMContext) -> None:
+    business_connection = update.business_connection
+    if business_connection is None:
+        return
+
+    await state.update_data(business_connection_id=business_connection.id)
+
+
+@router.event(HasChecklistDone())
+async def on_checklist_update(update: Update, state: FSMContext) -> None:
+    checklist_update = getattr(update, "checklist_tasks_done", None)
+    if checklist_update is None or not getattr(checklist_update, "tasks", None):
+@router.update(HasBusinessConnection())
+async def on_business_connection(update: Update, state: FSMContext) -> None:
+    await state.update_data(business_connection_id=update.business_connection.id)
+
+
+@router.update(HasChecklistDone())
+async def on_checklist_update(update: Update, state: FSMContext) -> None:
+    checklist_update = update.checklist_tasks_done
+@router.update()
+async def on_business_connection(update: Update, state: FSMContext) -> None:
+    if update.business_connection:
+        await state.update_data(business_connection_id=update.business_connection.id)
+
+
+@router.update()
+async def on_checklist_update(update: Update, state: FSMContext) -> None:
+    checklist_update = update.checklist_tasks_done
+    if not checklist_update:
         return
 
     current_state = await state.get_state()
@@ -236,6 +291,7 @@ async def on_checklist_update(update: Update, state: FSMContext) -> None:
             continue
 
         if getattr(task, "is_done", False):
+        if task.is_done:
             selected_hits.add(text)
         else:
             selected_hits.discard(text)
@@ -360,6 +416,10 @@ async def on_hits_checklist_action(
         return
 
     message = cast(Message, message)
+
+    if message is None:
+        await callback.answer()
+        return
 
     if callback_data.action != "finish":
         await callback.answer()
