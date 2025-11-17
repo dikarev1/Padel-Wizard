@@ -95,10 +95,22 @@ def build_default_flow() -> QuestionnaireFlow:
 
     q2 = Question(
         id="q2",
-        text="[Placeholder] Question 2 about padel experience.",
+        text=(
+            "Как бы ты оценил/а \n"
+            "свой уровень надежности игры?  Сложный мяч — это мяч с низким отскоком и"
+            " высокой скоростью. Либо трудный мяч, который застал игрока вне позиции в"
+            " результате комбинации ударов противника"
+        ),
         options=(
-            AnswerOption("q2_opt1", "Sample answer", "q3"),
-            AnswerOption("q2_opt2", "Another sample answer", "q3"),
+            AnswerOption("q2_opt1", "Стараюсь просто попадать по мячу", "q3"),
+            AnswerOption("q2_opt2", "5-10% сложных возращается в корт", "q3"),
+            AnswerOption("q2_opt3", "10–20% сложных возращается в корт", "q3"),
+            AnswerOption("q2_opt4", "20–30% сложных возращается в корт", "q3"),
+            AnswerOption("q2_opt5", "30–40% сложных возращается в корт", "q3"),
+            AnswerOption("q2_opt6", "40–50% сложных возращается в корт", "q3"),
+            AnswerOption("q2_opt7", "50–60% сложных возращается в корт", "q3"),
+            AnswerOption("q2_opt8", "60-75% сложных возращается в корт", "q3"),
+            AnswerOption("q2_opt9", "75%–90% сложных возращается в корт", "q3"),
         ),
     )
 
