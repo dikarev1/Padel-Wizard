@@ -86,10 +86,23 @@ def build_default_flow() -> QuestionnaireFlow:
 
     q3 = Question(
         id="q3",
-        text="[Placeholder] Question 3 about technical skills.",
+        text=(
+            "Как бы ты оценил/а\n"
+            "свой уровень надежности игры?\n"
+            "Сложный мяч — это мяч с низким отскоком и высокой скоростью. "
+            "Либо трудный мяч, который застал игрока вне позиции в результате "
+            "комбинации ударов противника"
+        ),
         options=(
-            AnswerOption("q3_opt1", "Sample answer", "q4"),
-            AnswerOption("q3_opt2", "Another sample answer", "q4"),
+            AnswerOption("q3_opt1", "Стараюсь просто попадать по мячу", "q4"),
+            AnswerOption("q3_opt2", "5-10% сложных мячей возвращается в корт", "q4"),
+            AnswerOption("q3_opt3", "10–20% сложных мячей возвращается в корт", "q4"),
+            AnswerOption("q3_opt4", "20–30% сложных мячей возвращается в корт", "q4"),
+            AnswerOption("q3_opt5", "30–40% сложных мячей возвращается в корт", "q4"),
+            AnswerOption("q3_opt6", "40–50% сложных мячей возвращается в корт", "q4"),
+            AnswerOption("q3_opt7", "50–60% сложных мячей возвращается в корт", "q4"),
+            AnswerOption("q3_opt8", "60-75% сложных мячей возвращается в корт", "q4"),
+            AnswerOption("q3_opt9", "75%–90% сложных мячей возвращается в корт", "q4"),
         ),
     )
 
