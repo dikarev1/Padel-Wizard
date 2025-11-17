@@ -91,6 +91,7 @@ async def on_wizard_launch(callback: CallbackQuery, state: FSMContext) -> None:
     if session is not None:
         state_payload["session_id"] = session.id
         state_payload["session_number"] = session.session_number
+        state_payload["user_id"] = session.user_id
 
     await state.update_data(state_payload)
 
