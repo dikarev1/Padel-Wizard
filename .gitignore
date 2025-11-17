@@ -214,6 +214,7 @@ __pycache__/
 *.pyo
 *.pyd
 *.db
+*.sqlite3
 
 # Envs
 .env
