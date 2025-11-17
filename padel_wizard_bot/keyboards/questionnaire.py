@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from aiogram.filters.callback_data import CallbackData
+from aiogram.types import KeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 
 from padel_wizard_bot.services.questionnaire_flow import Question
@@ -11,13 +12,17 @@ def build_question_keyboard(question: Question) -> ReplyKeyboardBuilder:
     """Build a reply keyboard with one button per answer option."""
 
     builder = ReplyKeyboardBuilder()
-    for option in question.options:
-        builder.button(text=option.text)
 
-    if len(question.options) >= 3:
-        builder.adjust(2)
+    if question.id == "q2":
+        for option in question.options:
+            builder.button(text=option.text)
+
+        if len(question.options) >= 3:
+            builder.adjust(2)
+        else:
+            builder.adjust(1)
     else:
-        builder.adjust(1)
+        builder.row(*[KeyboardButton(text=option.text) for option in question.options])
 
     return builder
 
