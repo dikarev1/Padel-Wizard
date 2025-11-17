@@ -28,6 +28,12 @@ class FinalScreenCallback(CallbackData, prefix="final"):
     action: str
 
 
+class HitsChecklistCallback(CallbackData, prefix="hits"):
+    """Callback payload for hits checklist related actions."""
+
+    action: str
+
+
 def build_final_keyboard() -> InlineKeyboardBuilder:
     builder = InlineKeyboardBuilder()
     builder.button(
@@ -37,6 +43,18 @@ def build_final_keyboard() -> InlineKeyboardBuilder:
     builder.button(
         text="Получить советы для моего уровня",
         callback_data=FinalScreenCallback(action="advice"),
+    )
+    builder.adjust(1)
+    return builder
+
+
+def build_hits_completion_keyboard() -> InlineKeyboardBuilder:
+    """Inline keyboard for completing the hits checklist step."""
+
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="Готово, показать результат",
+        callback_data=HitsChecklistCallback(action="finish"),
     )
     builder.adjust(1)
     return builder

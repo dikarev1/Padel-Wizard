@@ -18,6 +18,7 @@ def create_dispatcher() -> Dispatcher:
     dispatcher = Dispatcher()
     dispatcher.include_router(start.router)
     dispatcher.include_router(questionnaire.router)
+    questionnaire.register_update_observers(dispatcher)
     return dispatcher
 
 

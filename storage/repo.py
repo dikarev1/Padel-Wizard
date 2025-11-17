@@ -160,6 +160,25 @@ class StorageRepository:
 
         await self._run(operation)
 
+    async def save_hits(self, user_id: int, hits: Iterable[str]) -> None:
+        """Persist the selected hits list for the user."""
+
+        hits_json = json.dumps(list(hits), ensure_ascii=False)
+        timestamp = datetime.now(timezone.utc).isoformat()
+
+        def operation(connection: sqlite3.Connection) -> None:
+            connection.execute(
+                (
+                    "INSERT INTO user_hits (user_id, hits_json, updated_at) "
+                    "VALUES (?, ?, ?) "
+                    "ON CONFLICT(user_id) DO UPDATE SET "
+                    "hits_json = excluded.hits_json, updated_at = excluded.updated_at"
+                ),
+                (user_id, hits_json, timestamp),
+            )
+
+        await self._run(operation)
+
     async def set_interim_rating(self, session_id: int, rating: float) -> None:
         """Store the latest interim rating value for the session."""
 
