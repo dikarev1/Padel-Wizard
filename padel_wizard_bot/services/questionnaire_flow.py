@@ -108,23 +108,36 @@ def build_default_flow() -> QuestionnaireFlow:
 
     q2 = Question(
         id="q2",
-        text="[Placeholder] Question 2 about padel experience.",
+        text=(
+            "Какой у тебя опыт\n"
+            "игры в *падел*? (значение в месяцах рассчитано исходя 2-3 двухчасовых игр в неделю)"
+        ),
         options=(
-            AnswerOption("q2_opt1", "Sample answer", "q3"),
-            AnswerOption("q2_opt2", "Another sample answer", "q3"),
+            AnswerOption("q2_hours_10", "≈ 10 часов", "q3"),
+            AnswerOption("q2_hours_20_50", "20–50 часов\n (1–2 месяца)", "q3"),
+            AnswerOption("q2_hours_50_100", "50–100 часов\n (2–4 месяца)", "q3"),
+            AnswerOption("q2_hours_100_140", "100–140 часов\n (4–6 месяцев)", "q3"),
+            AnswerOption("q2_hours_120_190", "120–190 часов\n (5–8 месяцев)", "q3"),
+            AnswerOption("q2_hours_190_290", "190–290 часов\n (7–11 месяцев)", "q3"),
+            AnswerOption("q2_hours_290_430", "290–430 часов\n (10–15 месяцев)", "q3"),
+            AnswerOption("q2_hours_430_580", "430–580 часов\n (1.5–2 года)", "q3"),
+            AnswerOption("q2_hours_580_plus", "580+ часов \n(2+ лет)", "q3"),
         ),
     )
 
     q1_1 = Question(
         id="q1.1",
-        text="В каком именно виде спорта больше всего опыта?",
+        text="Хорошо. Какой у тебя приблизительный опыт игры?",
         options=(
-            AnswerOption("tennis", "Большой теннис", "q1.2"),
-            AnswerOption("table_tennis", "Настольный теннис", "q1.2"),
-            AnswerOption("badminton", "Бадминтон", "q1.2"),
-            AnswerOption("pickleball", "Пикклбол", "q1.2"),
-            AnswerOption("squash", "Сквош", "q1.2"),
-            AnswerOption("multiple", "Более одного ракетного спорта", "q1.2"),
+            AnswerOption("q1_1_hours_10", "≈ 10 часов", "q2"),
+            AnswerOption("q1_1_hours_20_50", "20–50 часов\n (1–2 месяца)", "q2"),
+            AnswerOption("q1_1_hours_50_100", "50–100 часов\n (2–4 месяца)", "q2"),
+            AnswerOption("q1_1_hours_100_140", "100–140 часов\n (4–6 месяцев)", "q2"),
+            AnswerOption("q1_1_hours_120_190", "120–190 часов\n (5–8 месяцев)", "q2"),
+            AnswerOption("q1_1_hours_190_290", "190–290 часов\n (7–11 месяцев)", "q2"),
+            AnswerOption("q1_1_hours_290_430", "290–430 часов\n (10–15 месяцев)", "q2"),
+            AnswerOption("q1_1_hours_430_580", "430–580 часов\n (1.5–2 года)", "q2"),
+            AnswerOption("q1_1_hours_580_plus", "580+ часов \n(2+ лет)", "q2"),
         ),
     )
 
