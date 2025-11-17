@@ -160,10 +160,15 @@ def build_default_flow() -> QuestionnaireFlow:
         id="q1.2",
         text="Сколько часов опыта?",
         options=(
-            AnswerOption("hours_10", "10", "q2"),
-            AnswerOption("hours_100", "100", "q2"),
-            AnswerOption("hours_500", "500", "q2"),
-            AnswerOption("hours_1000", "1000", "q2"),
+            AnswerOption("q1_2_hours_10", "≈ 10 часов", "q2"),
+            AnswerOption("q1_2_hours_20_50", "20–50 часов\n (1–2 месяца)", "q2"),
+            AnswerOption("q1_2_hours_50_100", "50–100 часов\n (2–4 месяца)", "q2"),
+            AnswerOption("q1_2_hours_100_140", "100–140 часов\n (4–6 месяцев)", "q2"),
+            AnswerOption("q1_2_hours_120_190", "120–190 часов\n (5–8 месяцев)", "q2"),
+            AnswerOption("q1_2_hours_190_290", "190–290 часов\n (7–11 месяцев)", "q2"),
+            AnswerOption("q1_2_hours_290_430", "290–430 часов\n (10–15 месяцев)", "q2"),
+            AnswerOption("q1_2_hours_430_580", "430–580 часов\n (1.5–2 года)", "q2"),
+            AnswerOption("q1_2_hours_580_plus", "580+ часов \n(2+ лет)", "q2"),
         ),
     )
 
