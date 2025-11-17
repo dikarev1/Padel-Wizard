@@ -59,59 +59,100 @@ class QuestionnaireFlow:
 def build_default_flow() -> QuestionnaireFlow:
     q6 = Question(
         id="q6",
-        text="[Placeholder] Question 6 about padel specifics.",
+        text="Какими ударами ты владеешь?",
         options=(
-            AnswerOption("q6_opt1", "Sample answer", None),
-            AnswerOption("q6_opt2", "Another sample answer", None),
+            AnswerOption("q6_opt1", "1. Forehand", None),
+            AnswerOption("q6_opt2", "2. Forehand, Backhand", None),
+            AnswerOption("q6_opt3", "3. + Volley, Lob", None),
+            AnswerOption("q6_opt4", "4. + Backhand Volley, half-Volley", None),
+            AnswerOption("q6_opt5", "5. + Bandeja, flat Smash/x4", None),
+            AnswerOption("q6_opt6", "6. + Bajada, Vibora", None),
+            AnswerOption("q6_opt7", "7. + Gancho/Rulo, Chiquita, Drop-shot", None),
+            AnswerOption("q6_opt8", "8. + Smash x3/Topspin", None),
+            AnswerOption("q6_opt9", "9. Практически все доступные удары и с контролем вращения", None),
         ),
     )
 
     q5 = Question(
         id="q5",
-        text="[Placeholder] Question 5 that leads to the final screen.",
+        text="Как бы ты описал свою игру от стекла?",
         options=(
-            AnswerOption("q5_opt1", "Sample answer", "q6"),
-            AnswerOption("q5_opt2", "Another sample answer", "q6"),
+            AnswerOption("q5_opt1", "1. Не играю от стекла — мне проще сыграть с лёта", "q6"),
+            AnswerOption("q5_opt2", "2. Иногда получается играть от заднего стекла", "q6"),
+            AnswerOption("q5_opt3", "3. Активно обучаюсь игре от заднего стекла", "q6"),
+            AnswerOption("q5_opt4", "4. Регулярно получается играть от заднего стекла", "q6"),
+            AnswerOption("q5_opt5", "5. Уверенно возвращаю удары от заднего стекла, но мне сложно вернуть от двойного", "q6"),
+            AnswerOption("q5_opt6", "6. Регулярно получается защитить удары от двойного стекла и очень низкие мячи", "q6"),
         ),
     )
 
     q4 = Question(
         id="q4",
-        text="[Placeholder] Question 4 about tactical awareness.",
+        text="Как бы ты описал свою игру у сетки?",
         options=(
-            AnswerOption("q4_opt1", "Sample answer", "q5"),
-            AnswerOption("q4_opt2", "Another sample answer", "q5"),
+            AnswerOption("q4_opt1", "1. Не выхожу к сетке", "q5"),
+            AnswerOption("q4_opt2", "2. Очень редко выхожу к сетке", "q5"),
+            AnswerOption("q4_opt3", "3. Выхожу к сетке, но чувствую себя неуверенно", "q5"),
+            AnswerOption("q4_opt4", "4. Могу ударить с лёту и forehand, и backhand, но с некоторыми трудностями", "q5"),
+            AnswerOption("q4_opt5", "5. Занимаю верную позицию у сетки и уверенно ударяю с лёту", "q5"),
+            AnswerOption("q4_opt6", "6. Атакую с лёту с силой и низким отскоком от стекла", "q5"),
         ),
     )
 
     q3 = Question(
         id="q3",
-        text="[Placeholder] Question 3 about technical skills.",
+        text=(
+            "Как бы ты оценил/а\n"
+            "свой уровень надежности игры?\n"
+            "Сложный мяч — это мяч с низким отскоком и высокой скоростью. "
+            "Либо трудный мяч, который застал игрока вне позиции в результате "
+            "комбинации ударов противника"
+        ),
         options=(
-            AnswerOption("q3_opt1", "Sample answer", "q4"),
-            AnswerOption("q3_opt2", "Another sample answer", "q4"),
+            AnswerOption("q3_opt1", "Стараюсь просто попадать по мячу", "q4"),
+            AnswerOption("q3_opt2", "5-10% сложных мячей возвращается в корт", "q4"),
+            AnswerOption("q3_opt3", "10–20% сложных мячей возвращается в корт", "q4"),
+            AnswerOption("q3_opt4", "20–30% сложных мячей возвращается в корт", "q4"),
+            AnswerOption("q3_opt5", "30–40% сложных мячей возвращается в корт", "q4"),
+            AnswerOption("q3_opt6", "40–50% сложных мячей возвращается в корт", "q4"),
+            AnswerOption("q3_opt7", "50–60% сложных мячей возвращается в корт", "q4"),
+            AnswerOption("q3_opt8", "60-75% сложных мячей возвращается в корт", "q4"),
+            AnswerOption("q3_opt9", "75%–90% сложных мячей возвращается в корт", "q4"),
         ),
     )
 
     q2 = Question(
         id="q2",
-        text="[Placeholder] Question 2 about padel experience.",
+        text=(
+            "Какой у тебя опыт\n"
+            "игры в *падел*? (значение в месяцах рассчитано исходя 2-3 двухчасовых игр в неделю)"
+        ),
         options=(
-            AnswerOption("q2_opt1", "Sample answer", "q3"),
-            AnswerOption("q2_opt2", "Another sample answer", "q3"),
+            AnswerOption("q2_hours_10", "≈ 10 часов", "q3"),
+            AnswerOption("q2_hours_20_50", "20–50 часов\n (1–2 месяца)", "q3"),
+            AnswerOption("q2_hours_50_100", "50–100 часов\n (2–4 месяца)", "q3"),
+            AnswerOption("q2_hours_100_140", "100–140 часов\n (4–6 месяцев)", "q3"),
+            AnswerOption("q2_hours_120_190", "120–190 часов\n (5–8 месяцев)", "q3"),
+            AnswerOption("q2_hours_190_290", "190–290 часов\n (7–11 месяцев)", "q3"),
+            AnswerOption("q2_hours_290_430", "290–430 часов\n (10–15 месяцев)", "q3"),
+            AnswerOption("q2_hours_430_580", "430–580 часов\n (1.5–2 года)", "q3"),
+            AnswerOption("q2_hours_580_plus", "580+ часов \n(2+ лет)", "q3"),
         ),
     )
 
     q1_1 = Question(
         id="q1.1",
-        text="В каком именно виде спорта больше всего опыта?",
+        text="Хорошо. Какой у тебя приблизительный опыт игры?",
         options=(
-            AnswerOption("tennis", "Большой теннис", "q1.2"),
-            AnswerOption("table_tennis", "Настольный теннис", "q1.2"),
-            AnswerOption("badminton", "Бадминтон", "q1.2"),
-            AnswerOption("pickleball", "Пикклбол", "q1.2"),
-            AnswerOption("squash", "Сквош", "q1.2"),
-            AnswerOption("multiple", "Более одного ракетного спорта", "q1.2"),
+            AnswerOption("q1_1_hours_10", "≈ 10 часов", "q2"),
+            AnswerOption("q1_1_hours_20_50", "20–50 часов\n (1–2 месяца)", "q2"),
+            AnswerOption("q1_1_hours_50_100", "50–100 часов\n (2–4 месяца)", "q2"),
+            AnswerOption("q1_1_hours_100_140", "100–140 часов\n (4–6 месяцев)", "q2"),
+            AnswerOption("q1_1_hours_120_190", "120–190 часов\n (5–8 месяцев)", "q2"),
+            AnswerOption("q1_1_hours_190_290", "190–290 часов\n (7–11 месяцев)", "q2"),
+            AnswerOption("q1_1_hours_290_430", "290–430 часов\n (10–15 месяцев)", "q2"),
+            AnswerOption("q1_1_hours_430_580", "430–580 часов\n (1.5–2 года)", "q2"),
+            AnswerOption("q1_1_hours_580_plus", "580+ часов \n(2+ лет)", "q2"),
         ),
     )
 
