@@ -21,6 +21,10 @@ def build_question_keyboard(question: Question) -> ReplyKeyboardBuilder:
             builder.adjust(2)
         else:
             builder.adjust(1)
+    if question.id == "q6":
+        builder.adjust(len(question.options))
+    elif len(question.options) >= 3:
+        builder.adjust(2)
     else:
         builder.row(*[KeyboardButton(text=option.text) for option in question.options])
 
