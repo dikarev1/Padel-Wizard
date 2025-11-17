@@ -29,6 +29,23 @@ def build_checklist_tasks_payload(tasks: Iterable[str]) -> List[Dict[str, str]]:
     """Convert internal task strings to the payload format."""
 
     return [{"text": text} for text in tasks]
+HITS_CHECKLIST_TASKS: Tuple[Tuple[str, str], ...] = (
+    ("hit_forehand", "+ Форхенд"),
+    ("hit_backhand", "+ Бэкхенд"),
+    ("hit_volley_lob", "+ Воллей, лоб"),
+    ("hit_backhand_volley", "+ Бэкхенд-воллей, полуволлей"),
+    ("hit_bandeja_smash", "+ Ранняя бандежa, ранний смэш, смэш x4"),
+    ("hit_bajada_vibora", "+ Бахада, ранняя вибора"),
+    ("hit_gancho_chiquita", "+ Ранний ганчо/руло, чикита, укороченный удар"),
+    ("hit_spin_control", "+ Сильный контроль вращения"),
+    ("hit_full_arsenal", "Почти весь доступный арсенал паделя с множеством формаций"),
+)
+
+
+def build_checklist_tasks_payload(tasks: Iterable[Tuple[str, str]]) -> List[Dict[str, str]]:
+    """Convert internal task tuples to the payload format."""
+
+    return [{"id": task_id, "text": text} for task_id, text in tasks]
 
 
 async def send_hits_checklist(bot: Bot, business_connection_id: str, chat_id: int) -> Dict[str, Any]:
@@ -57,4 +74,8 @@ async def send_hits_checklist(bot: Bot, business_connection_id: str, chat_id: in
         "api_response": response_data,
         "tasks": checklist_tasks,
         "message_id": result.get("message_id") if isinstance(result, dict) else None,
+    return {
+        "api_response": response_data,
+        "tasks": tasks_payload,
+        "message_id": result.get("message_id"),
     }

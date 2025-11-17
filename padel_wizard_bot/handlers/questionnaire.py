@@ -164,6 +164,9 @@ async def _start_hits_checklist(
         for task in tasks_payload
         if isinstance(task, dict) and task.get("text")
     ]
+    tasks_payload = checklist_info.get("tasks", [])
+    tasks_map = {task["id"]: task["text"] for task in tasks_payload if "id" in task}
+    tasks_order = [task["text"] for task in tasks_payload if "text" in task]
     payload_to_store: Dict[str, Any] = {
         "hits_tasks_map": tasks_map,
         "hits_tasks_order": tasks_order,
@@ -171,6 +174,8 @@ async def _start_hits_checklist(
     message_id = api_result.get("message_id") if isinstance(api_result, dict) else None
     if message_id is not None:
         payload_to_store["checklist_message_id"] = message_id
+    if checklist_info.get("message_id") is not None:
+        payload_to_store["checklist_message_id"] = checklist_info["message_id"]
 
     await state.update_data(payload_to_store)
 
@@ -195,6 +200,17 @@ async def on_business_connection(update: Update, state: FSMContext) -> None:
 @router.update(HasChecklistDone())
 async def on_checklist_update(update: Update, state: FSMContext) -> None:
     checklist_update = update.checklist_tasks_done
+@router.update()
+async def on_business_connection(update: Update, state: FSMContext) -> None:
+    if update.business_connection:
+        await state.update_data(business_connection_id=update.business_connection.id)
+
+
+@router.update()
+async def on_checklist_update(update: Update, state: FSMContext) -> None:
+    checklist_update = update.checklist_tasks_done
+    if not checklist_update:
+        return
 
     current_state = await state.get_state()
     if current_state != QuestionnaireStates.waiting_for_hits_checklist.state:
