@@ -2,6 +2,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, Iterable, Optional, Tuple
 
+from padel_wizard_bot.services.business_checklist import (
+    HITS_CHECKLIST_QUESTION_ID,
+)
+
 
 # ---------- MODELS ----------
 
@@ -58,20 +62,17 @@ class QuestionnaireFlow:
 
 def build_default_flow() -> QuestionnaireFlow:
     q6 = Question(
-        id="q6",
-        text="[Placeholder] Question 6 about padel specifics.",
-        options=(
-            AnswerOption("q6_opt1", "Sample answer", None),
-            AnswerOption("q6_opt2", "Another sample answer", None),
-        ),
+        id=HITS_CHECKLIST_QUESTION_ID,
+        text="Отметьте в чек-листе все удары, которые уверенно выполняете.",
+        options=(),
     )
 
     q5 = Question(
         id="q5",
         text="[Placeholder] Question 5 that leads to the final screen.",
         options=(
-            AnswerOption("q5_opt1", "Sample answer", "q6"),
-            AnswerOption("q5_opt2", "Another sample answer", "q6"),
+            AnswerOption("q5_opt1", "Sample answer", HITS_CHECKLIST_QUESTION_ID),
+            AnswerOption("q5_opt2", "Another sample answer", HITS_CHECKLIST_QUESTION_ID),
         ),
     )
 
