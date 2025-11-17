@@ -23,6 +23,7 @@ Padel Wizard — Telegram-бот, который помогает игрокам
 - `documentation/telegram_api_doc.md`
 - `documentation/telegram_bot_features.md`
 - `documentation/telegram_quick_start.md`
+- `documentation/telegram_keyboard_api.md`
 
 Если возникают конфликты между предположениями агента и документацией —
 
