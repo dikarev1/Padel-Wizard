@@ -96,6 +96,20 @@ def build_default_flow() -> QuestionnaireFlow:
     q2 = Question(
         id="q2",
         text=(
+            "Какой у тебя опыт \n"
+            "игры в падел? (значение в месяцах рассчитано исходя 2-3 двухчасовых игр"
+            " в неделю)"
+        ),
+        options=(
+            AnswerOption("q2_opt1", "≈ 10 часов", "q3"),
+            AnswerOption("q2_opt2", "20–50 часов\n (1–2 месяца)", "q3"),
+            AnswerOption("q2_opt3", "50–100 часов\n (2–4 месяца)", "q3"),
+            AnswerOption("q2_opt4", "100–140 часов\n (4–6 месяцев)", "q3"),
+            AnswerOption("q2_opt5", "120–190 часов\n (5–8 месяцев)", "q3"),
+            AnswerOption("q2_opt6", "190–290 часов\n (7–11 месяцев)", "q3"),
+            AnswerOption("q2_opt7", "290–430 часов\n (10–15 месяцев)", "q3"),
+            AnswerOption("q2_opt8", "430–580 часов\n (1.5–2 года)", "q3"),
+            AnswerOption("q2_opt9", "580+ часов \n(2+ лет)", "q3"),
             "Как бы ты оценил/а \n"
             "свой уровень надежности игры?  Сложный мяч — это мяч с низким отскоком и"
             " высокой скоростью. Либо трудный мяч, который застал игрока вне позиции в"
@@ -116,25 +130,21 @@ def build_default_flow() -> QuestionnaireFlow:
 
     q1_1 = Question(
         id="q1.1",
-        text="В каком именно виде спорта больше всего опыта?",
-        options=(
-            AnswerOption("tennis", "Большой теннис", "q1.2"),
-            AnswerOption("table_tennis", "Настольный теннис", "q1.2"),
-            AnswerOption("badminton", "Бадминтон", "q1.2"),
-            AnswerOption("pickleball", "Пикклбол", "q1.2"),
-            AnswerOption("squash", "Сквош", "q1.2"),
-            AnswerOption("multiple", "Более одного ракетного спорта", "q1.2"),
+        text=(
+            "Какой у тебя опыт \n"
+            "игры в другие ракетные виды спорта? (значение в месяцах рассчитано исходя"
+            " 2-3 двухчасовых игр в неделю)"
         ),
-    )
-
-    q1_2 = Question(
-        id="q1.2",
-        text="Сколько часов опыта?",
         options=(
-            AnswerOption("hours_10", "10", "q2"),
-            AnswerOption("hours_100", "100", "q2"),
-            AnswerOption("hours_500", "500", "q2"),
-            AnswerOption("hours_1000", "1000", "q2"),
+            AnswerOption("q1.1_opt1", "≈ 10 часов", "q2"),
+            AnswerOption("q1.1_opt2", "20–50 часов\n (1–2 месяца)", "q2"),
+            AnswerOption("q1.1_opt3", "50–100 часов\n (2–4 месяца)", "q2"),
+            AnswerOption("q1.1_opt4", "100–140 часов\n (4–6 месяцев)", "q2"),
+            AnswerOption("q1.1_opt5", "120–190 часов\n (5–8 месяцев)", "q2"),
+            AnswerOption("q1.1_opt6", "190–290 часов\n (7–11 месяцев)", "q2"),
+            AnswerOption("q1.1_opt7", "290–430 часов\n (10–15 месяцев)", "q2"),
+            AnswerOption("q1.1_opt8", "430–580 часов\n (1.5–2 года)", "q2"),
+            AnswerOption("q1.1_opt9", "580+ часов \n(2+ лет)", "q2"),
         ),
     )
 
@@ -148,7 +158,7 @@ def build_default_flow() -> QuestionnaireFlow:
     )
 
     return QuestionnaireFlow(
-        questions=(q1, q1_1, q1_2, q2, q3, q4, q5, q6),
+        questions=(q1, q1_1, q2, q3, q4, q5, q6),
         first_question_id="q1",
     )
 
