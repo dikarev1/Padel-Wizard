@@ -2,6 +2,17 @@
 from __future__ import annotations
 
 import logging
+from typing import Any, Dict, Iterable, List, Set, cast
+
+from aiogram import F, Router
+from aiogram.filters import Filter
+from aiogram.fsm.context import FSMContext
+from aiogram.types import (
+    CallbackQuery,
+    Message,
+    ReplyKeyboardRemove,
+    Update,
+)
 from typing import Any, Dict, Iterable, List, Set
 
 from aiogram import F, Router
@@ -29,6 +40,12 @@ router = Router()
 logger = logging.getLogger(__name__)
 
 
+class HasBusinessConnection(Filter):
+    async def __call__(self, update: Update) -> bool:
+        return hasattr(update, "business_connection") and update.business_connection is not None
+
+
+class HasChecklistDone(Filter):
 class HasBusinessConnection(BaseFilter):
     async def __call__(self, update: Update) -> bool:
         return bool(getattr(update, "business_connection", None))
@@ -133,6 +150,18 @@ async def _start_hits_checklist(
         )
         return
 
+    bot_instance = message.bot
+    if bot_instance is None:
+        logger.warning("Cannot send hits checklist without bot instance for chat %s", message.chat.id)
+        await message.answer(
+            "Бот недоступен для отправки чек-листа. Попробуйте снова позже.",
+            reply_markup=build_hits_completion_keyboard().as_markup(),
+        )
+        return
+
+    try:
+        checklist_info = await send_hits_checklist(
+            bot=bot_instance,
     try:
         checklist_info = await send_hits_checklist(
             bot=message.bot,
@@ -192,6 +221,19 @@ async def _start_hits_checklist(
         logger.info("Hits checklist sent to unknown user")
 
 
+@router.event(HasBusinessConnection())
+async def on_business_connection(update: Update, state: FSMContext) -> None:
+    business_connection = update.business_connection
+    if business_connection is None:
+        return
+
+    await state.update_data(business_connection_id=business_connection.id)
+
+
+@router.event(HasChecklistDone())
+async def on_checklist_update(update: Update, state: FSMContext) -> None:
+    checklist_update = getattr(update, "checklist_tasks_done", None)
+    if checklist_update is None or not getattr(checklist_update, "tasks", None):
 @router.update(HasBusinessConnection())
 async def on_business_connection(update: Update, state: FSMContext) -> None:
     await state.update_data(business_connection_id=update.business_connection.id)
@@ -231,6 +273,7 @@ async def on_checklist_update(update: Update, state: FSMContext) -> None:
         if not text:
             continue
 
+        if getattr(task, "is_done", False):
         if task.is_done:
             selected_hits.add(text)
         else:
@@ -351,6 +394,12 @@ async def on_hits_checklist_action(
     callback: CallbackQuery, callback_data: HitsChecklistCallback, state: FSMContext
 ) -> None:
     message = callback.message
+    if not isinstance(message, Message):
+        await callback.answer()
+        return
+
+    message = cast(Message, message)
+
     if message is None:
         await callback.answer()
         return
