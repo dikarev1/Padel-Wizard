@@ -156,17 +156,6 @@ def build_default_flow() -> QuestionnaireFlow:
         ),
     )
 
-    q1_2 = Question(
-        id="q1.2",
-        text="Сколько часов опыта?",
-        options=(
-            AnswerOption("hours_10", "10", "q2"),
-            AnswerOption("hours_100", "100", "q2"),
-            AnswerOption("hours_500", "500", "q2"),
-            AnswerOption("hours_1000", "1000", "q2"),
-        ),
-    )
-
     q1 = Question(
         id="q1",
         text="Есть ли опыт в других ракетных видах спорта?",
@@ -177,7 +166,7 @@ def build_default_flow() -> QuestionnaireFlow:
     )
 
     return QuestionnaireFlow(
-        questions=(q1, q1_1, q1_2, q2, q3, q4, q5, q6),
+        questions=(q1, q1_1, q2, q3, q4, q5, q6),
         first_question_id="q1",
     )
 
