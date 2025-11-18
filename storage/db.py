@@ -47,6 +47,8 @@ def initialize_database() -> None:
                 user_id INTEGER NOT NULL,
                 answers_json TEXT NOT NULL DEFAULT '[]',
                 interim_rating REAL,
+                experience_months REAL,
+                experience_level TEXT,
                 finished INTEGER NOT NULL DEFAULT 0,
                 final_level TEXT,
                 started_at TEXT NOT NULL,
@@ -56,3 +58,10 @@ def initialize_database() -> None:
             )
             """
         )
+
+        cursor = connection.execute("PRAGMA table_info(sessions)")
+        existing_session_columns = {row[1] for row in cursor.fetchall()}
+        if "experience_months" not in existing_session_columns:
+            connection.execute("ALTER TABLE sessions ADD COLUMN experience_months REAL")
+        if "experience_level" not in existing_session_columns:
+            connection.execute("ALTER TABLE sessions ADD COLUMN experience_level TEXT")

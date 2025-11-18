@@ -140,33 +140,53 @@ def build_default_flow() -> QuestionnaireFlow:
         ),
     )
 
-    q1_1 = Question(
-        id="q1.1",
+    q1_2 = Question(
+        id="q1.2",
         text="Хорошо. Какой у тебя приблизительный опыт игры?",
         options=(
-            AnswerOption("q1_1_months_lt_1", "меньше месяца", "q2"),
-            AnswerOption("q1_1_months_1_2", "1–2 месяца", "q2"),
-            AnswerOption("q1_1_months_2_4", "2–4 месяца", "q2"),
-            AnswerOption("q1_1_months_4_6", "4–6 месяцев", "q2"),
-            AnswerOption("q1_1_months_5_8", "5–8 месяцев", "q2"),
-            AnswerOption("q1_1_months_7_11", "7–11 месяцев", "q2"),
-            AnswerOption("q1_1_months_10_15", "10–15 месяцев", "q2"),
-            AnswerOption("q1_1_months_18_24", "1.5–2 года", "q2"),
-            AnswerOption("q1_1_months_24_plus", "2+ года", "q2"),
+            AnswerOption("q1_2_months_lt_1", "меньше месяца", "q2"),
+            AnswerOption("q1_2_months_1_2", "1–2 месяца", "q2"),
+            AnswerOption("q1_2_months_2_4", "2–4 месяца", "q2"),
+            AnswerOption("q1_2_months_4_6", "4–6 месяцев", "q2"),
+            AnswerOption("q1_2_months_5_8", "5–8 месяцев", "q2"),
+            AnswerOption("q1_2_months_7_11", "7–11 месяцев", "q2"),
+            AnswerOption("q1_2_months_10_15", "10–15 месяцев", "q2"),
+            AnswerOption("q1_2_months_18_24", "1.5–2 года", "q2"),
+            AnswerOption("q1_2_months_24_plus", "2+ года", "q2"),
+        ),
+    )
+
+    q1_1 = Question(
+        id="q1.1",
+        text=(
+            "Какой именно ракетный спорт?\n"
+            "Выбери тот, в котором у тебя больше всего практики"
+        ),
+        options=(
+            AnswerOption("sport_tennis", "Большой теннис", "q1.2"),
+            AnswerOption("sport_table_tennis", "Настольный теннис", "q1.2"),
+            AnswerOption("sport_squash", "Сквош", "q1.2"),
+            AnswerOption("sport_badminton", "Бадминтон", "q1.2"),
+            AnswerOption("sport_pickleball", "Пикклбол", "q1.2"),
+            AnswerOption(
+                "sport_multiple",
+                "Несколько видов ракетного спорта",
+                "q1.2",
+            ),
         ),
     )
 
     q1 = Question(
         id="q1",
-        text="Есть ли опыт в других ракетных видах спорта?",
+        text="Есть ли у тебя опыт в других ракетных видах спорта?",
         options=(
-            AnswerOption("has_experience", "Да, у меня есть опыт", "q1.1"),
-            AnswerOption("no_experience", "Нет, нет опыта", "q2"),
+            AnswerOption("experience_yes", "Да, есть опыт", "q1.1"),
+            AnswerOption("experience_no", "Нет, нет опыта", "q2"),
         ),
     )
 
     return QuestionnaireFlow(
-        questions=(q1, q1_1, q2, q3, q4, q5, q6),
+        questions=(q1, q1_1, q1_2, q2, q3, q4, q5, q6),
         first_question_id="q1",
     )
 

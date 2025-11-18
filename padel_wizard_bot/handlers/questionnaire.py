@@ -15,11 +15,92 @@ from padel_wizard_bot.keyboards.questionnaire import (
 )
 from padel_wizard_bot.handlers.start import cmd_start
 from padel_wizard_bot.services.questionnaire_flow import DEFAULT_FLOW
+from padel_wizard_bot.services.scoring_engine import calculate_experience
 from padel_wizard_bot.states.questionnaire import QuestionnaireStates
 from storage.repo import repository
 
 router = Router()
 logger = logging.getLogger(__name__)
+
+
+async def _update_experience_state(
+    *,
+    question_id: str,
+    option_id: str,
+    state: FSMContext,
+    session_id: int | None,
+) -> None:
+    if question_id == "q1":
+        if option_id == "experience_no":
+            await state.update_data(
+                other_sport_option=None, other_experience_option=None
+            )
+        else:
+            await state.update_data(
+                other_sport_option=None, other_experience_option=None
+            )
+        return
+
+    if question_id == "q1.1":
+        await state.update_data(
+            other_sport_option=option_id, other_experience_option=None
+        )
+        return
+
+    if question_id == "q1.2":
+        await state.update_data(other_experience_option=option_id)
+        return
+
+    if question_id != "q2":
+        return
+
+    state_data = await state.get_data()
+    other_sport_option = state_data.get("other_sport_option")
+    other_experience_option = state_data.get("other_experience_option")
+
+    try:
+        experience = calculate_experience(
+            padel_option_id=option_id,
+            other_sport_option_id=other_sport_option,
+            other_experience_option_id=other_experience_option,
+        )
+    except Exception:
+        logger.exception(
+            "Failed to calculate experience for session %s", session_id
+        )
+        return
+
+    await state.update_data(experience=experience.as_dict())
+    logger.info(
+        (
+            "Experience saved for session %s: other_sport=%s, raw_other_months=%.2f, "
+            "adjusted_other_months=%.2f, padel_months=%.2f, total_months=%.2f, "
+            "level=%s, rating_value=%.2f"
+        ),
+        session_id,
+        experience.other_sport_option_id,
+        experience.raw_other_months,
+        experience.adjusted_other_months,
+        experience.padel_months,
+        experience.total_months,
+        experience.level,
+        experience.rating_value,
+    )
+
+    if session_id is not None:
+        try:
+            await repository.set_experience(
+                session_id,
+                total_months=experience.total_months,
+                level=experience.level,
+            )
+            await repository.set_interim_rating(
+                session_id, experience.rating_value
+            )
+        except Exception:
+            logger.exception(
+                "Failed to persist experience data for session %s", session_id
+            )
 
 
 @router.message(QuestionnaireStates.waiting_for_answer)
@@ -78,6 +159,13 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
             logger.exception(
                 "Failed to persist answers for session %s", session_id
             )
+
+    await _update_experience_state(
+        question_id=question.id,
+        option_id=option.id,
+        state=state,
+        session_id=int(session_id) if session_id is not None else None,
+    )
 
     next_question_id = DEFAULT_FLOW.resolve_next(
         current_question_id=question.id,
