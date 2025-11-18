@@ -39,7 +39,12 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
     user_answer = (message.text or "").strip()
 
     option = next(
-        (opt for opt in question.options if opt.text == user_answer), None
+        (
+            opt
+            for opt in question.options
+            if opt.text.strip() == user_answer.strip()
+        ),
+        None,
     )
     if option is None:
         await message.answer(
