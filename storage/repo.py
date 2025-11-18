@@ -31,6 +31,8 @@ class SessionRecord:
     user_id: int
     answers: list[dict[str, Any]]
     interim_rating: Optional[float]
+    experience_months: Optional[float]
+    experience_level: Optional[str]
     finished: bool
     final_level: Optional[str]
     started_at: str
@@ -133,6 +135,8 @@ class StorageRepository:
                 user_id=user.id,
                 answers=[],
                 interim_rating=None,
+                experience_months=None,
+                experience_level=None,
                 finished=False,
                 final_level=None,
                 started_at=now,
@@ -202,8 +206,9 @@ class StorageRepository:
         def operation(connection: sqlite3.Connection) -> Optional[SessionRecord]:
             cursor = connection.execute(
                 (
-                    "SELECT id, session_number, user_id, answers_json, interim_rating, finished, "
-                    "final_level, started_at, finished_at, updated_at FROM sessions WHERE id = ?"
+                    "SELECT id, session_number, user_id, answers_json, interim_rating, "
+                    "experience_months, experience_level, finished, final_level, started_at, "
+                    "finished_at, updated_at FROM sessions WHERE id = ?"
                 ),
                 (session_id,),
             )
@@ -216,6 +221,8 @@ class StorageRepository:
                 user_id=row["user_id"],
                 answers=json.loads(row["answers_json"] or "[]"),
                 interim_rating=row["interim_rating"],
+                experience_months=row["experience_months"],
+                experience_level=row["experience_level"],
                 finished=bool(row["finished"]),
                 final_level=row["final_level"],
                 started_at=row["started_at"],
@@ -236,6 +243,24 @@ class StorageRepository:
             )
             if cursor.fetchone() is None:
                 return candidate
+
+    async def set_experience(
+        self, session_id: int, *, total_months: float, level: str
+    ) -> None:
+        """Store the calculated experience summary for the session."""
+
+        timestamp = datetime.now(timezone.utc).isoformat()
+
+        def operation(connection: sqlite3.Connection) -> None:
+            connection.execute(
+                (
+                    "UPDATE sessions SET experience_months = ?, experience_level = ?, "
+                    "updated_at = ? WHERE id = ?"
+                ),
+                (total_months, level, timestamp, session_id),
+            )
+
+        await self._run(operation)
 
 
 repository = StorageRepository()
