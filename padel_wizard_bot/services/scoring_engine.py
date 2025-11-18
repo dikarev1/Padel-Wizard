@@ -109,6 +109,13 @@ def select_level_for_months(total_months: float) -> str:
         matched_levels.append(level)
 
     if not matched_levels:
+        future_levels = [
+            (level, lower)
+            for level, (lower, _upper) in EXPERIENCE_LEVEL_RANGES
+            if lower > total_months
+        ]
+        if future_levels:
+            return min(future_levels, key=lambda item: item[1])[0]
         raise ValueError(f"No rating level matches {total_months} months")
 
     selected = max(matched_levels, key=lambda lvl: RATING_SCALE[lvl])
