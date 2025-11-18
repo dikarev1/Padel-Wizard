@@ -14,6 +14,7 @@ from padel_wizard_bot.keyboards.questionnaire import (
     build_final_keyboard,
 )
 from padel_wizard_bot.handlers.start import cmd_start
+from padel_wizard_bot.services.experience import calculate_player_experience
 from padel_wizard_bot.services.questionnaire_flow import DEFAULT_FLOW
 from padel_wizard_bot.states.questionnaire import QuestionnaireStates
 from storage.repo import repository
@@ -74,6 +75,23 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
     if session_id is not None:
         try:
             await repository.update_answers(int(session_id), answers)
+            experience = calculate_player_experience(answers)
+            if experience is not None:
+                logger.info(
+                    "Session %s experience calculated: q1=%.1f months, q2=%.1f months, total=%.1f months, level=%s",
+                    session_id,
+                    experience.q1_months,
+                    experience.q2_months,
+                    experience.total_months,
+                    experience.level,
+                )
+                await repository.upsert_player_experience(
+                    int(session_id),
+                    q1_months=experience.q1_months,
+                    q2_months=experience.q2_months,
+                    total_months=experience.total_months,
+                    experience_level=experience.level,
+                )
         except Exception:
             logger.exception(
                 "Failed to persist answers for session %s", session_id
