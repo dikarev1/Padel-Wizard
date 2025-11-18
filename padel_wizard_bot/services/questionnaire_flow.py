@@ -182,6 +182,22 @@ def build_default_flow() -> QuestionnaireFlow:
         options=(
             AnswerOption("experience_yes", "Да, есть опыт", "q1.1"),
             AnswerOption("experience_no", "Нет, нет опыта", "q2"),
+        text=(
+            "Есть ли опыт в других ракетных видах спорта?\n"
+            "Выбери тот, в котором у тебя больше всего практики"
+        ),
+        options=(
+            AnswerOption("sport_tennis", "Большой теннис", "q1.1"),
+            AnswerOption("sport_table_tennis", "Настольный теннис", "q1.1"),
+            AnswerOption("sport_squash", "Сквош", "q1.1"),
+            AnswerOption("sport_badminton", "Бадминтон", "q1.1"),
+            AnswerOption("sport_pickleball", "Пикклбол", "q1.1"),
+            AnswerOption(
+                "sport_multiple",
+                "Несколько видов ракетного спорта",
+                "q1.1",
+            ),
+            AnswerOption("no_experience", "Нет, нет опыта", "q2"),
         ),
     )
 
