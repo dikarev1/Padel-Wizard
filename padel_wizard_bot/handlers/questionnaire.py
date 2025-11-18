@@ -31,6 +31,10 @@ async def _update_experience_state(
     session_id: int | None,
 ) -> None:
     if question_id == "q1":
+        await state.update_data(
+            other_sport_option=None,
+            other_experience_option=None,
+        )
         if option_id == "experience_no":
         if option_id == "no_experience":
             await state.update_data(
