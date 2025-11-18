@@ -7,6 +7,15 @@ from .questionnaire_flow import (
     build_default_flow,
     DEFAULT_FLOW,
 )
+from .scoring_engine import (
+    EXPERIENCE_QUESTIONS_RATING_MAP,
+    RATING_SCALE,
+    SKILL_QUESTIONS_RATING_MAP,
+    ExperienceEntry,
+    ExperienceSummary,
+    RatingEngine,
+    map_experience_to_rating,
+)
 
 __all__ = [
     "AnswerOption",
@@ -14,4 +23,11 @@ __all__ = [
     "QuestionnaireFlow",
     "build_default_flow",
     "DEFAULT_FLOW",
+    "RATING_SCALE",
+    "SKILL_QUESTIONS_RATING_MAP",
+    "EXPERIENCE_QUESTIONS_RATING_MAP",
+    "ExperienceEntry",
+    "ExperienceSummary",
+    "map_experience_to_rating",
+    "RatingEngine",
 ]
