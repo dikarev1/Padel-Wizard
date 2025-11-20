@@ -99,9 +99,12 @@ def calculate_player_experience(
     if q2_months is None:
         return None
 
-    racket_sport_coefficient = RACKET_SPORT_EXPERIENCE_COEFFICIENTS.get(
-        primary_racket_sport, 1.0
-    )
+    if primary_racket_sport is None:
+        racket_sport_coefficient = 1.0
+    else:
+        racket_sport_coefficient = RACKET_SPORT_EXPERIENCE_COEFFICIENTS.get(
+            primary_racket_sport, 1.0
+        )
     normalized_q1_months = q1_months * racket_sport_coefficient
     total_months = normalized_q1_months + q2_months
     level = _map_total_months_to_level(total_months)
