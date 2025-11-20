@@ -38,6 +38,15 @@ PRIMARY_RACKET_SPORT_OPTIONS: dict[str, str] = {
     "racket_sport_multiple": "Несколько видов ракетного спорта",
 }
 
+RACKET_SPORT_EXPERIENCE_COEFFICIENTS: dict[str, float] = {
+    "Большой теннис": 0.65,
+    "Настольный теннис": 0.25,
+    "Сквош": 0.3,
+    "Бадминтон": 0.35,
+    "Пикклбол": 0.5,
+    "Несколько видов ракетного спорта": 0.5,
+}
+
 
 @dataclass
 class PlayerExperience:
@@ -67,8 +76,9 @@ def calculate_player_experience(
 ) -> Optional[PlayerExperience]:
     """Return calculated player experience from questionnaire answers.
 
-    The calculation sums the experience selected in q1.1 (other racket sports)
-    and q2 (padel) and maps the total to the configured level thresholds.
+    The calculation multiplies the experience selected in q1.1 (other racket
+    sports) by a sport-specific coefficient, adds padel experience from q2,
+    and maps the total to the configured level thresholds.
     Returns ``None`` until q2 is answered because the padel experience is
     mandatory for deriving the total.
     """
@@ -89,7 +99,14 @@ def calculate_player_experience(
     if q2_months is None:
         return None
 
-    total_months = q1_months + q2_months
+    if primary_racket_sport is None:
+        racket_sport_coefficient = 1.0
+    else:
+        racket_sport_coefficient = RACKET_SPORT_EXPERIENCE_COEFFICIENTS.get(
+            primary_racket_sport, 1.0
+        )
+    normalized_q1_months = q1_months * racket_sport_coefficient
+    total_months = normalized_q1_months + q2_months
     level = _map_total_months_to_level(total_months)
     return PlayerExperience(
         q1_months=q1_months,
