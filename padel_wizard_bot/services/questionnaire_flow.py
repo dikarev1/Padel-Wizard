@@ -167,17 +167,30 @@ def build_default_flow() -> QuestionnaireFlow:
         ),
     )
 
+    q1_sports = Question(
+        id="q1.sports",
+        text="В каком у тебя больше всего наигранно часов?",
+        options=(
+            AnswerOption("racket_sport_tennis", "Большой теннис", "q1.1"),
+            AnswerOption("racket_sport_table_tennis", "Настольный теннис", "q1.1"),
+            AnswerOption("racket_sport_squash", "Сквош", "q1.1"),
+            AnswerOption("racket_sport_badminton", "Бадминтон", "q1.1"),
+            AnswerOption("racket_sport_pickleball", "Пикклбол", "q1.1"),
+            AnswerOption("racket_sport_multiple", "Несколько видов ракетного спорта", "q1.1"),
+        ),
+    )
+
     q1 = Question(
         id="q1",
         text="Есть ли опыт в других ракетных видах спорта?",
         options=(
-            AnswerOption("has_experience", "Да, у меня есть опыт", "q1.1"),
+            AnswerOption("has_experience", "Да, у меня есть опыт", "q1.sports"),
             AnswerOption("no_experience", "Нет, нет опыта", "q2"),
         ),
     )
 
     return QuestionnaireFlow(
-        questions=(q1, q1_1, q1_2, q2, q3, q4, q5, q6),
+        questions=(q1, q1_sports, q1_1, q1_2, q2, q3, q4, q5, q6),
         first_question_id="q1",
     )
 

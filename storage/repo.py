@@ -47,6 +47,7 @@ class PlayerExperienceRecord:
     q1_months: float
     q2_months: float
     total_months: float
+    primary_racket_sport: Optional[str]
     experience_level: str
     created_at: str
     updated_at: str
@@ -258,6 +259,7 @@ class StorageRepository:
         q1_months: float,
         q2_months: float,
         total_months: float,
+        primary_racket_sport: Optional[str],
         experience_level: str,
     ) -> PlayerExperienceRecord:
         """Insert or update the stored player experience for a session."""
@@ -273,12 +275,14 @@ class StorageRepository:
                 connection.execute(
                     (
                         "UPDATE player_experiences SET q1_months = ?, q2_months = ?, "
-                        "total_months = ?, experience_level = ?, updated_at = ? WHERE session_id = ?"
+                        "total_months = ?, primary_racket_sport = ?, experience_level = ?, "
+                        "updated_at = ? WHERE session_id = ?"
                     ),
                     (
                         q1_months,
                         q2_months,
                         total_months,
+                        primary_racket_sport,
                         experience_level,
                         timestamp,
                         session_id,
@@ -290,6 +294,7 @@ class StorageRepository:
                     q1_months=q1_months,
                     q2_months=q2_months,
                     total_months=total_months,
+                    primary_racket_sport=primary_racket_sport,
                     experience_level=experience_level,
                     created_at=row["created_at"],
                     updated_at=timestamp,
@@ -298,13 +303,15 @@ class StorageRepository:
             cursor = connection.execute(
                 (
                     "INSERT INTO player_experiences (session_id, q1_months, q2_months, total_months, "
-                    "experience_level, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)"
+                    "primary_racket_sport, experience_level, created_at, updated_at) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
                 ),
                 (
                     session_id,
                     q1_months,
                     q2_months,
                     total_months,
+                    primary_racket_sport,
                     experience_level,
                     timestamp,
                     timestamp,
@@ -319,6 +326,7 @@ class StorageRepository:
                 q1_months=q1_months,
                 q2_months=q2_months,
                 total_months=total_months,
+                primary_racket_sport=primary_racket_sport,
                 experience_level=experience_level,
                 created_at=timestamp,
                 updated_at=timestamp,
@@ -333,10 +341,10 @@ class StorageRepository:
 
         def operation(connection: sqlite3.Connection) -> Optional[PlayerExperienceRecord]:
             cursor = connection.execute(
-                (
-                    "SELECT id, session_id, q1_months, q2_months, total_months, experience_level, "
-                    "created_at, updated_at FROM player_experiences WHERE session_id = ?"
-                ),
+                    (
+                    "SELECT id, session_id, q1_months, q2_months, total_months, primary_racket_sport, "
+                    "experience_level, created_at, updated_at FROM player_experiences WHERE session_id = ?"
+                    ),
                 (session_id,),
             )
             row = cursor.fetchone()
@@ -348,6 +356,7 @@ class StorageRepository:
                 q1_months=row["q1_months"],
                 q2_months=row["q2_months"],
                 total_months=row["total_months"],
+                primary_racket_sport=row["primary_racket_sport"],
                 experience_level=row["experience_level"],
                 created_at=row["created_at"],
                 updated_at=row["updated_at"],

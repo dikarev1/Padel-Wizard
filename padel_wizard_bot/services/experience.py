@@ -29,6 +29,15 @@ Q2_OPTION_MONTHS: dict[str, float] = {
     "q2_hours_580_plus": 24.0,
 }
 
+PRIMARY_RACKET_SPORT_OPTIONS: dict[str, str] = {
+    "racket_sport_tennis": "Большой теннис",
+    "racket_sport_table_tennis": "Настольный теннис",
+    "racket_sport_squash": "Сквош",
+    "racket_sport_badminton": "Бадминтон",
+    "racket_sport_pickleball": "Пикклбол",
+    "racket_sport_multiple": "Несколько видов ракетного спорта",
+}
+
 
 @dataclass
 class PlayerExperience:
@@ -38,6 +47,7 @@ class PlayerExperience:
     q2_months: float
     total_months: float
     level: str
+    primary_racket_sport: Optional[str]
 
 
 EXPERIENCE_LEVEL_THRESHOLDS: tuple[tuple[float, str], ...] = (
@@ -65,6 +75,7 @@ def calculate_player_experience(
 
     q1_months = 0.0
     q2_months: Optional[float] = None
+    primary_racket_sport: Optional[str] = None
 
     for answer in answers:
         option_id = answer.get("option_id")
@@ -72,6 +83,8 @@ def calculate_player_experience(
             q1_months = Q1_OPTION_MONTHS[option_id]
         elif option_id in Q2_OPTION_MONTHS:
             q2_months = Q2_OPTION_MONTHS[option_id]
+        elif option_id in PRIMARY_RACKET_SPORT_OPTIONS:
+            primary_racket_sport = PRIMARY_RACKET_SPORT_OPTIONS[option_id]
 
     if q2_months is None:
         return None
@@ -83,6 +96,7 @@ def calculate_player_experience(
         q2_months=q2_months,
         total_months=total_months,
         level=level,
+        primary_racket_sport=primary_racket_sport,
     )
 
 
