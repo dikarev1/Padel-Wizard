@@ -90,6 +90,7 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
                     q1_months=experience.q1_months,
                     q2_months=experience.q2_months,
                     total_months=experience.total_months,
+                    primary_racket_sport=experience.primary_racket_sport,
                     experience_level=experience.level,
                 )
         except Exception:
