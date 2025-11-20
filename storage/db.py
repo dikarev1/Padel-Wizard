@@ -65,6 +65,7 @@ def initialize_database() -> None:
                 q1_months REAL NOT NULL,
                 q2_months REAL NOT NULL,
                 total_months REAL NOT NULL,
+                primary_racket_sport TEXT,
                 experience_level TEXT NOT NULL,
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL,
@@ -72,3 +73,10 @@ def initialize_database() -> None:
             )
             """
         )
+
+        cursor = connection.execute("PRAGMA table_info(player_experiences)")
+        experience_columns = {row[1] for row in cursor.fetchall()}
+        if "primary_racket_sport" not in experience_columns:
+            connection.execute(
+                "ALTER TABLE player_experiences ADD COLUMN primary_racket_sport TEXT"
+            )
