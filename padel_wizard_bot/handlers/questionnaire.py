@@ -15,6 +15,7 @@ from padel_wizard_bot.keyboards.questionnaire import (
 )
 from padel_wizard_bot.handlers.start import cmd_start
 from padel_wizard_bot.services.experience import calculate_player_experience
+from padel_wizard_bot.services.final_rating import calculate_final_rating
 from padel_wizard_bot.services.questionnaire_flow import DEFAULT_FLOW
 from padel_wizard_bot.states.questionnaire import QuestionnaireStates
 from storage.repo import repository
@@ -120,10 +121,25 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
                     "Failed to mark session %s as finished", session_id
                 )
 
+        final_rating = calculate_final_rating(answers)
+        if final_rating is not None:
+            final_text = f"Спасибо! Твой рейтинг = **{final_rating.level}**"
+            logger.info(
+                "Final rating calculated: level=%s, score=%.2f, experience_level=%s, skills=%s",
+                final_rating.level,
+                final_rating.score,
+                final_rating.experience_level,
+                final_rating.skill_levels,
+            )
+        else:
+            final_text = (
+                "Спасибо! Это финальный экран-заглушка. Здесь появится результат и рекомендации."
+            )
+
         await state.clear()
         final_keyboard = build_final_keyboard()
         await message.answer(
-            "Спасибо! Это финальный экран-заглушка. Здесь появится результат и рекомендации.",
+            final_text,
             reply_markup=ReplyKeyboardRemove(),
         )
         await message.answer(
