@@ -49,19 +49,27 @@ def calculate_final_rating(
         return None
 
     skill_ratings = derive_skill_ratings(answers)
-    skill_levels = [
-        skill_ratings.reliability,
-        skill_ratings.net_play,
-        skill_ratings.glass_play,
-        skill_ratings.strokes,
-    ]
+    reliability_level = skill_ratings.reliability
+    net_play_level = skill_ratings.net_play
+    glass_play_level = skill_ratings.glass_play
+    strokes_level = skill_ratings.strokes
 
-    if any(level is None for level in skill_levels):
+    if (
+        reliability_level is None
+        or net_play_level is None
+        or glass_play_level is None
+        or strokes_level is None
+    ):
         return None
 
     try:
         experience_score = LEVEL_TO_SCORE[experience.level]
-        skill_scores = [_level_to_score(level) for level in skill_levels]
+        skill_scores = [
+            _level_to_score(reliability_level),
+            _level_to_score(net_play_level),
+            _level_to_score(glass_play_level),
+            _level_to_score(strokes_level),
+        ]
     except KeyError:
         return None
 
