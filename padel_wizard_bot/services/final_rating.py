@@ -23,6 +23,21 @@ LEVEL_TO_SCORE: dict[str, float] = {
     "C+": 3.33,
 }
 
+LEVEL_ORDER: tuple[str, ...] = (
+    "E-",
+    "E",
+    "E+",
+    "D-",
+    "D",
+    "D+",
+    "C-",
+    "C",
+    "C+",
+)
+
+MIN_EXPERIENCE_LEVEL = "E-"
+MAX_EXPERIENCE_LEVEL = "C+"
+
 
 @dataclass(frozen=True)
 class FinalRating:
@@ -76,6 +91,7 @@ def calculate_final_rating(
     total_score = experience_score * 2 + sum(skill_scores)
     average_score = total_score / 6
     final_level = _score_to_level(average_score)
+    final_level = _clamp_level_by_experience(final_level, experience.level)
     return FinalRating(
         level=final_level,
         score=average_score,
@@ -90,4 +106,24 @@ def _level_to_score(level: str) -> float:
 
 def _score_to_level(score: float) -> str:
     return min(LEVEL_TO_SCORE.items(), key=lambda item: abs(item[1] - score))[0]
+
+
+def _clamp_level_by_experience(final_level: str, experience_level: str) -> str:
+    try:
+        experience_index = LEVEL_ORDER.index(experience_level)
+        final_index = LEVEL_ORDER.index(final_level)
+    except ValueError:
+        return final_level
+
+    min_experience_index = LEVEL_ORDER.index(MIN_EXPERIENCE_LEVEL)
+    max_experience_index = LEVEL_ORDER.index(MAX_EXPERIENCE_LEVEL)
+
+    min_index = max(min_experience_index, experience_index - 3)
+    max_index = min(max_experience_index, experience_index + 3)
+
+    if final_index < min_index:
+        return LEVEL_ORDER[min_index]
+    if final_index > max_index:
+        return LEVEL_ORDER[max_index]
+    return final_level
 
