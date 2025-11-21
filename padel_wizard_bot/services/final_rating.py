@@ -55,9 +55,11 @@ def calculate_final_rating(
     """Return final aggregated rating from questionnaire answers.
 
     The algorithm weights the experience score (q1 + q2) based on the player's
-    experience band, adds the skill scores from q3–q6, divides the sum by the
-    total weight (experience weight + four skill weights), and maps the result
-    back to the nearest level.
+    experience band (×3 for E-/E/E+/D-, ×2.5 for D/D+/C-, ×2 for C/C+), adds the
+    skill scores from q3–q6, divides the sum by the total weight (experience
+    weight + four skill weights), and maps the result back to the nearest
+    level.
+    
     """
 
     experience = calculate_player_experience(answers)
@@ -115,11 +117,9 @@ def _get_experience_multiplier(experience_level: str) -> float:
     if experience_level in ("E-", "E", "E+", "D-"):
         return 3.0
     if experience_level in ("D", "D+", "C-"):
-        return 2.0
+        return 2.5
     if experience_level in ("C", "C+"):
-        return 1.5
-    return 2.0
-
+        return 2.0
 
 def _clamp_level_by_experience(final_level: str, experience_level: str) -> str:
     try:
