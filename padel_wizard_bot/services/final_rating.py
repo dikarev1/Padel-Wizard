@@ -54,9 +54,11 @@ def calculate_final_rating(
 ) -> Optional[FinalRating]:
     """Return final aggregated rating from questionnaire answers.
 
-    The algorithm doubles the experience score (q1 + q2), adds the skill
-    scores from q3–q6, divides the sum by six, and maps the result back to the
-    nearest level.
+    The algorithm weights the experience score (q1 + q2) based on the player's
+    experience band (×3 for E-/E/E+/D-, ×2.5 for D/D+/C-, ×2 for C/C+), adds the
+    skill scores from q3–q6, divides the sum by the total weight (experience
+    weight + four skill weights), and maps the result back to the nearest
+    level.
     """
 
     experience = calculate_player_experience(answers)
@@ -79,6 +81,7 @@ def calculate_final_rating(
 
     try:
         experience_score = LEVEL_TO_SCORE[experience.level]
+        experience_multiplier = _get_experience_multiplier(experience.level)
         skill_scores = [
             _level_to_score(reliability_level),
             _level_to_score(net_play_level),
@@ -88,8 +91,9 @@ def calculate_final_rating(
     except KeyError:
         return None
 
-    total_score = experience_score * 2 + sum(skill_scores)
-    average_score = total_score / 6
+    total_score = experience_score * experience_multiplier + sum(skill_scores)
+    total_weight = experience_multiplier + len(skill_scores)
+    average_score = total_score / total_weight
     final_level = _score_to_level(average_score)
     final_level = _clamp_level_by_experience(final_level, experience.level)
     return FinalRating(
@@ -106,6 +110,16 @@ def _level_to_score(level: str) -> float:
 
 def _score_to_level(score: float) -> str:
     return min(LEVEL_TO_SCORE.items(), key=lambda item: abs(item[1] - score))[0]
+
+
+def _get_experience_multiplier(experience_level: str) -> float:
+    if experience_level in ("E-", "E", "E+", "D-"):
+        return 3.0
+    if experience_level in ("D", "D+", "C-"):
+        return 2.5
+    if experience_level in ("C", "C+"):
+        return 2.0
+    return 2.0
 
 
 def _clamp_level_by_experience(final_level: str, experience_level: str) -> str:
