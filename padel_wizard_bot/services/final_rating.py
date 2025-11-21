@@ -59,6 +59,7 @@ def calculate_final_rating(
     skill scores from q3–q6, divides the sum by the total weight (experience
     weight + four skill weights), and maps the result back to the nearest
     level.
+    
     """
 
     experience = calculate_player_experience(answers)
@@ -119,8 +120,6 @@ def _get_experience_multiplier(experience_level: str) -> float:
         return 2.5
     if experience_level in ("C", "C+"):
         return 2.0
-    return 2.0
-
 
 def _clamp_level_by_experience(final_level: str, experience_level: str) -> str:
     try:
