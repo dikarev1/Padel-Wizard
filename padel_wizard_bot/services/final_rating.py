@@ -89,7 +89,7 @@ def calculate_final_rating(
             _level_to_score(glass_play_level),
             _level_to_score(strokes_level),
         ]
-    except KeyError:
+    except (KeyError, ValueError):
         return None
 
     total_score = experience_score * experience_multiplier + sum(skill_scores)
@@ -120,6 +120,7 @@ def _get_experience_multiplier(experience_level: str) -> float:
         return 2.5
     if experience_level in ("C", "C+"):
         return 2.0
+    raise ValueError(f"Unsupported experience level: {experience_level}")
 
 def _clamp_level_by_experience(final_level: str, experience_level: str) -> str:
     try:
