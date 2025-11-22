@@ -120,7 +120,8 @@ def _get_experience_multiplier(experience_level: str) -> float:
         return 2.5
     if experience_level in ("C", "C+"):
         return 2.0
-    raise ValueError(f"Unsupported experience level: {experience_level}")
+    raise ValueError(f"Unknown experience level: {experience_level}")
+
 
 def _clamp_level_by_experience(final_level: str, experience_level: str) -> str:
     try:
