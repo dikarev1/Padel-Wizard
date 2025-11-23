@@ -142,3 +142,18 @@ def _clamp_level_by_experience(final_level: str, experience_level: str) -> str:
         return LEVEL_ORDER[max_index]
     return final_level
 
+
+def get_target_level(level: str) -> str:
+    """Return the next level the player can aim for."""
+
+    try:
+        current_index = LEVEL_ORDER.index(level)
+    except ValueError:
+        return level
+
+    next_index = current_index + 1
+    if next_index >= len(LEVEL_ORDER):
+        return level
+
+    return LEVEL_ORDER[next_index]
+
