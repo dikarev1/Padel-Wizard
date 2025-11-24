@@ -6,7 +6,7 @@ import logging
 from aiogram import Bot, Dispatcher
 
 from padel_wizard_bot.config import settings
-from padel_wizard_bot.handlers import questionnaire, start
+from padel_wizard_bot.handlers import questionnaire, start, testgif
 from padel_wizard_bot.logging_config import setup_logging
 
 
@@ -18,6 +18,7 @@ def create_dispatcher() -> Dispatcher:
     dispatcher = Dispatcher()
     dispatcher.include_router(start.router)
     dispatcher.include_router(questionnaire.router)
+    dispatcher.include_router(testgif.router)
     return dispatcher
 
 
