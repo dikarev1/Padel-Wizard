@@ -86,14 +86,6 @@ class QuestionnaireFlow:
         return next_question_id
 
 
-def get_next_question_id_from_answers(
-    flow: QuestionnaireFlow, answers: Iterable[dict[str, Any]]
-) -> Optional[str]:
-    """Helper for retrieving the next question id from persisted answers."""
-
-    return flow.get_next_question_id_from_answers(answers)
-
-
 # ---------- DEFAULT FLOW ----------
 
 def build_default_flow() -> QuestionnaireFlow:
