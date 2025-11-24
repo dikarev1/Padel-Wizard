@@ -5,6 +5,7 @@ import logging
 from typing import Any
 
 from aiogram import F, Router
+from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
@@ -19,7 +20,10 @@ from padel_wizard_bot.services.final_rating import (
     calculate_final_rating,
     get_target_level,
 )
-from padel_wizard_bot.services.questionnaire_flow import DEFAULT_FLOW
+from padel_wizard_bot.services.questionnaire_flow import (
+    DEFAULT_FLOW,
+    get_next_question_id_from_answers,
+)
 from padel_wizard_bot.states.questionnaire import QuestionnaireStates
 from storage.repo import repository
 
@@ -164,6 +168,72 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
     await state.update_data(
         current_question_id=next_question.id,
     )
+    await send_question(message, next_question)
+
+
+@router.message(StateFilter(None))
+async def restore_questionnaire_state(
+    message: Message, state: FSMContext
+) -> None:
+    """Restore an unfinished questionnaire session from storage when needed."""
+
+    user = message.from_user
+    if user is None:
+        return
+
+    try:
+        session = await repository.get_latest_unfinished_session_for_user(user.id)
+    except Exception:
+        logger.exception(
+            "Failed to load unfinished session for user %s",
+            f"id={user.id}, username={user.username!r}",
+        )
+        return
+
+    if session is None:
+        return
+
+    try:
+        next_question_id = get_next_question_id_from_answers(
+            DEFAULT_FLOW, session.answers
+        )
+    except Exception:
+        logger.exception(
+            "Stored answers for session %s are inconsistent with the flow", session.id
+        )
+        try:
+            await repository.mark_finished(session.id)
+        except Exception:
+            logger.exception(
+                "Failed to mark inconsistent session %s as finished", session.id
+            )
+        return
+
+    if next_question_id is None:
+        try:
+            await repository.mark_finished(session.id)
+        except Exception:
+            logger.exception(
+                "Failed to mark already completed session %s as finished", session.id
+            )
+        return
+
+    await state.set_state(QuestionnaireStates.waiting_for_answer)
+    await state.update_data(
+        session_id=session.id,
+        session_number=session.session_number,
+        current_question_id=next_question_id,
+        answers=session.answers,
+    )
+
+    logger.info(
+        "Restored questionnaire state for user %s: session %s at question %s",
+        f"id={user.id}, username={user.username!r}",
+        session.session_number,
+        next_question_id,
+    )
+
+    next_question = DEFAULT_FLOW.get_question(next_question_id)
     await send_question(message, next_question)
 
 
