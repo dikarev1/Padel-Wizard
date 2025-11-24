@@ -240,6 +240,43 @@ class StorageRepository:
 
         return await self._run(operation)
 
+    async def get_latest_unfinished_session_for_user(
+        self, telegram_id: int
+    ) -> Optional[SessionRecord]:
+        """Return the most recent unfinished session for a Telegram user."""
+
+        def operation(connection: sqlite3.Connection) -> Optional[SessionRecord]:
+            cursor = connection.execute(
+                (
+                    "SELECT s.id, s.session_number, s.user_id, s.answers_json, s.interim_rating, "
+                    "s.finished, s.final_level, s.started_at, s.finished_at, s.updated_at "
+                    "FROM sessions s "
+                    "JOIN users u ON u.id = s.user_id "
+                    "WHERE u.telegram_id = ? AND s.finished = 0 "
+                    "ORDER BY s.updated_at DESC, s.id DESC LIMIT 1"
+                ),
+                (telegram_id,),
+            )
+
+            row = cursor.fetchone()
+            if row is None:
+                return None
+
+            return SessionRecord(
+                id=row["id"],
+                session_number=row["session_number"],
+                user_id=row["user_id"],
+                answers=json.loads(row["answers_json"] or "[]"),
+                interim_rating=row["interim_rating"],
+                finished=bool(row["finished"]),
+                final_level=row["final_level"],
+                started_at=row["started_at"],
+                finished_at=row["finished_at"],
+                updated_at=row["updated_at"],
+            )
+
+        return await self._run(operation)
+
     def _generate_session_number(self, connection: sqlite3.Connection) -> int:
         """Generate a random session number ensuring uniqueness."""
 
