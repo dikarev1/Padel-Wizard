@@ -26,8 +26,6 @@ def _resolve_q3_animation_path() -> Path:
         Path(__file__).resolve().parents[2] / "services" / "3_q.gif",
     ]
 
-    logger.info("Q3 path candidates: %s", candidate_paths)
-
     for path in candidate_paths:
         if path.exists():
             return path
