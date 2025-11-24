@@ -54,6 +54,50 @@ class QuestionnaireFlow:
         return option.next_question_id
 
 
+# ---------- HELPERS ----------
+
+def get_next_question_id_from_answers(
+    flow: QuestionnaireFlow, answers: Iterable[dict[str, str]]
+) -> Optional[str]:
+    """Return the next question id based on already given answers.
+
+    The function validates that the stored answers follow the flow definition and
+    raises ``ValueError`` if the saved path is inconsistent with the configured
+    questionnaire. ``None`` is returned when the questionnaire is already
+    completed.
+    """
+
+    answers_list = list(answers)
+    next_question_id: Optional[str] = flow.first_question_id
+
+    if not answers_list:
+        return next_question_id
+
+    for index, answer in enumerate(answers_list):
+        question_id = answer.get("question_id")
+        option_id = answer.get("option_id")
+
+        if question_id is None or option_id is None:
+            raise ValueError(
+                f"Answer #{index} is missing required keys: {answer!r}"
+            )
+
+        if next_question_id is None:
+            raise ValueError(
+                "Flow resolved to completion before all stored answers were processed"
+            )
+
+        if question_id != next_question_id:
+            raise ValueError(
+                "Stored answer sequence is out of sync with the questionnaire: "
+                f"expected {next_question_id!r}, got {question_id!r}"
+            )
+
+        next_question_id = flow.resolve_next(question_id, option_id)
+
+    return next_question_id
+
+
 # ---------- DEFAULT FLOW ----------
 
 def build_default_flow() -> QuestionnaireFlow:
