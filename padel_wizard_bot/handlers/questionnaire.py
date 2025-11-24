@@ -10,10 +10,10 @@ from aiogram.types import CallbackQuery, Message
 
 from padel_wizard_bot.keyboards.questionnaire import (
     FinalScreenCallback,
-    build_question_keyboard,
     build_final_keyboard,
 )
 from padel_wizard_bot.handlers.start import cmd_start
+from padel_wizard_bot.handlers.question_sender import send_question
 from padel_wizard_bot.services.experience import calculate_player_experience
 from padel_wizard_bot.services.final_rating import (
     calculate_final_rating,
@@ -164,12 +164,7 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
     await state.update_data(
         current_question_id=next_question.id,
     )
-
-    keyboard = build_question_keyboard(next_question)
-    await message.answer(
-        next_question.text,
-        reply_markup=keyboard.as_markup(resize_keyboard=True, one_time_keyboard=True),
-    )
+    await send_question(message, next_question)
 
 
 @router.callback_query(FinalScreenCallback.filter())
