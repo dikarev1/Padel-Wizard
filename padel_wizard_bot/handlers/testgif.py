@@ -6,11 +6,7 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message
 
-from padel_wizard_bot.handlers.question_sender import (
-    AnimationSendResult,
-    Q3_ANIMATION_CACHE,
-    send_q3_animation,
-)
+from padel_wizard_bot.handlers.question_sender import Q3_ANIMATION_CACHE
 
 logger = logging.getLogger(__name__)
 
@@ -24,10 +20,17 @@ async def cmd_testgif(message: Message) -> None:
         Q3_ANIMATION_CACHE.file_path,
         Q3_ANIMATION_CACHE.file_path.exists(),
     )
-    result = await send_q3_animation(message)
-    if result is AnimationSendResult.FILE_NOT_FOUND:
+    try:
+        animation_input = Q3_ANIMATION_CACHE.get_input()
+    except FileNotFoundError:
+        logger.error("testgif: file not found: %s", Q3_ANIMATION_CACHE.file_path)
         await message.answer(
             "Файл GIF не найден по пути:\n%s" % Q3_ANIMATION_CACHE.file_path
         )
-    elif result is AnimationSendResult.FAILED_TO_SEND:
+        return
+
+    try:
+        await message.answer_animation(animation=animation_input)
+    except Exception:
+        logger.exception("testgif: failed to send animation")
         await message.answer("Ошибка при отправке GIF, смотри логи.")
