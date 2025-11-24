@@ -9,7 +9,7 @@ from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton, Message
 
-from padel_wizard_bot.keyboards.questionnaire import build_question_keyboard
+from padel_wizard_bot.handlers.question_sender import send_question
 from padel_wizard_bot.services.questionnaire_flow import DEFAULT_FLOW
 from padel_wizard_bot.states.questionnaire import QuestionnaireStates
 from storage.repo import repository
@@ -94,10 +94,5 @@ async def on_wizard_launch(callback: CallbackQuery, state: FSMContext) -> None:
 
     await state.update_data(state_payload)
 
-    keyboard = build_question_keyboard(first_question)
-
-    await message.answer(
-        first_question.text,
-        reply_markup=keyboard.as_markup(resize_keyboard=True, one_time_keyboard=True),
-    )
+    await send_question(message, first_question)
     await callback.answer()
