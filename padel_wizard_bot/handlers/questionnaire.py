@@ -27,36 +27,22 @@ router = Router()
 logger = logging.getLogger(__name__)
 
 
-@router.message()
-async def restore_questionnaire_state(
+@router.message(F.text, ~F.text.startswith("/"))
+async def try_restore_questionnaire_state(
     message: Message, state: FSMContext
 ) -> None:
-    """Rehydrate questionnaire state for unfinished sessions.
-
-    If the FSM state has been lost (e.g., after a long pause or bot restart), the
-    handler restores it from the latest unfinished session in storage and processes
-    the incoming message as the current answer.
-    """
+    """Restore questionnaire FSM only when the user tries to continue."""
 
     if await state.get_state() is not None:
         return
 
-    if message.text and message.text.startswith("/"):
-        return
-
     user = message.from_user
     if user is None:
-        await message.answer(
-            "Опросник ещё не запущен. Нажмите кнопку запуска, чтобы начать."
-        )
         logger.info("Questionnaire state restore skipped: message without user")
         return
 
     session = await repository.get_active_session_by_telegram_id(user.id)
     if session is None:
-        await message.answer(
-            "Опросник ещё не запущен. Нажмите кнопку запуска, чтобы начать."
-        )
         logger.info(
             "No active questionnaire session found for user %s", f"id={user.id}, username={user.username!r}"
         )
@@ -64,9 +50,6 @@ async def restore_questionnaire_state(
 
     next_question_id = DEFAULT_FLOW.get_next_question_id_from_answers(session.answers)
     if next_question_id is None:
-        await message.answer(
-            "Предыдущий опрос завершён. Нажмите кнопку запуска, чтобы начать заново."
-        )
         logger.info(
             "Questionnaire session %s for user %s is already complete",
             session.id,
@@ -74,23 +57,25 @@ async def restore_questionnaire_state(
         )
         return
 
+    question = DEFAULT_FLOW.get_question(next_question_id)
+
     logger.info(
         "Restoring questionnaire session %s (number %s) for user %s at question %s",
         session.id,
         session.session_number,
         f"id={user.id}, username={user.username!r}",
-        next_question_id,
+        question.id,
     )
 
     await state.set_state(QuestionnaireStates.waiting_for_answer)
     await state.update_data(
-        current_question_id=next_question_id,
+        current_question_id=question.id,
         answers=list(session.answers),
         session_id=session.id,
         session_number=session.session_number,
     )
 
-    await on_question_answer(message, state)
+    await send_question(message, question)
 
 
 @router.message(QuestionnaireStates.waiting_for_answer)
