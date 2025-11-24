@@ -29,6 +29,9 @@ def initialize_database() -> None:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 telegram_id INTEGER NOT NULL UNIQUE,
                 username TEXT,
+                questionnaire_completed INTEGER NOT NULL DEFAULT 0,
+                final_rating TEXT,
+                received_advice INTEGER NOT NULL DEFAULT 0,
                 created_at TEXT NOT NULL
             )
             """
@@ -38,6 +41,16 @@ def initialize_database() -> None:
         existing_columns = {row[1] for row in cursor.fetchall()}
         if "username" not in existing_columns:
             connection.execute("ALTER TABLE users ADD COLUMN username TEXT")
+        if "questionnaire_completed" not in existing_columns:
+            connection.execute(
+                "ALTER TABLE users ADD COLUMN questionnaire_completed INTEGER NOT NULL DEFAULT 0"
+            )
+        if "final_rating" not in existing_columns:
+            connection.execute("ALTER TABLE users ADD COLUMN final_rating TEXT")
+        if "received_advice" not in existing_columns:
+            connection.execute(
+                "ALTER TABLE users ADD COLUMN received_advice INTEGER NOT NULL DEFAULT 0"
+            )
 
         connection.execute(
             """
