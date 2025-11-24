@@ -6,16 +6,19 @@ from typing import Any
 
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery, Message, ReplyKeyboardRemove
+from aiogram.types import CallbackQuery, Message
 
 from padel_wizard_bot.keyboards.questionnaire import (
     FinalScreenCallback,
-    build_question_keyboard,
     build_final_keyboard,
 )
 from padel_wizard_bot.handlers.start import cmd_start
+from padel_wizard_bot.handlers.question_sender import send_question
 from padel_wizard_bot.services.experience import calculate_player_experience
-from padel_wizard_bot.services.final_rating import calculate_final_rating
+from padel_wizard_bot.services.final_rating import (
+    calculate_final_rating,
+    get_target_level,
+)
 from padel_wizard_bot.services.questionnaire_flow import DEFAULT_FLOW
 from padel_wizard_bot.states.questionnaire import QuestionnaireStates
 from storage.repo import repository
@@ -123,27 +126,30 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
 
         final_rating = calculate_final_rating(answers)
         if final_rating is not None:
-            final_text = f"Спасибо! Твой рейтинг = **{final_rating.level}**"
+            target_level = get_target_level(final_rating.level)
+            level_progression = f"{final_rating.level} => {target_level}"
+            final_text = (
+                f"Твой уровень {level_progression}\n\n"
+                "Выбери дальнейшее действие:"
+            )
             logger.info(
-                "Final rating calculated: level=%s, score=%.2f, experience_level=%s, skills=%s",
+                "Final rating calculated: level=%s, target_level=%s, score=%.2f, experience_level=%s, skills=%s",
                 final_rating.level,
+                target_level,
                 final_rating.score,
                 final_rating.experience_level,
                 final_rating.skill_levels,
             )
         else:
             final_text = (
-                "Спасибо! Это финальный экран-заглушка. Здесь появится результат и рекомендации."
+                "Спасибо! Это финальный экран-заглушка. Здесь появится результат и рекомендации.\n\n"
+                "Выбери дальнейшее действие:"
             )
 
         await state.clear()
         final_keyboard = build_final_keyboard()
         await message.answer(
             final_text,
-            reply_markup=ReplyKeyboardRemove(),
-        )
-        await message.answer(
-            "Выберите действие:",
             reply_markup=final_keyboard.as_markup(),
         )
         if user:
@@ -158,12 +164,7 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
     await state.update_data(
         current_question_id=next_question.id,
     )
-
-    keyboard = build_question_keyboard(next_question)
-    await message.answer(
-        next_question.text,
-        reply_markup=keyboard.as_markup(resize_keyboard=True, one_time_keyboard=True),
-    )
+    await send_question(message, next_question)
 
 
 @router.callback_query(FinalScreenCallback.filter())
