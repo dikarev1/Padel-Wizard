@@ -5,6 +5,7 @@ import logging
 from typing import Any
 
 from aiogram import F, Router
+from aiogram.fsm.filter import StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
