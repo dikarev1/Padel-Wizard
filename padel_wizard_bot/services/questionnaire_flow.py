@@ -1,6 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import Dict, Iterable, Optional, Tuple
+from typing import Any, Dict, Iterable, Optional, Tuple
 
 
 # ---------- MODELS ----------
@@ -52,6 +52,46 @@ class QuestionnaireFlow:
         question = self.get_question(current_question_id)
         option = question.get_option(option_id)
         return option.next_question_id
+
+    def get_next_question_id_from_answers(
+        self, answers: Iterable[dict[str, Any]]
+    ) -> Optional[str]:
+        """Return the next question id based on the provided answers.
+
+        The function walks through the questionnaire flow starting from the first
+        question and applies each answer sequentially. If the answers diverge from
+        the expected flow (missing fields, unexpected question ids or options), the
+        calculation stops and returns the best-effort next question id.
+        """
+
+        next_question_id: Optional[str] = self.first_question_id
+        for answer in answers:
+            if next_question_id is None:
+                break
+
+            question_id = answer.get("question_id")
+            option_id = answer.get("option_id")
+
+            if question_id is None or option_id is None:
+                break
+
+            if question_id != next_question_id:
+                break
+
+            try:
+                next_question_id = self.resolve_next(question_id, option_id)
+            except KeyError:
+                break
+
+        return next_question_id
+
+
+def get_next_question_id_from_answers(
+    flow: QuestionnaireFlow, answers: Iterable[dict[str, Any]]
+) -> Optional[str]:
+    """Helper for retrieving the next question id from persisted answers."""
+
+    return flow.get_next_question_id_from_answers(answers)
 
 
 # ---------- DEFAULT FLOW ----------

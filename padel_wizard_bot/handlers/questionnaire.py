@@ -5,6 +5,7 @@ import logging
 from typing import Any
 
 from aiogram import F, Router
+from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
@@ -19,13 +20,15 @@ from padel_wizard_bot.services.final_rating import (
     calculate_final_rating,
     get_target_level,
 )
-from padel_wizard_bot.services.questionnaire_flow import DEFAULT_FLOW
+from padel_wizard_bot.services.questionnaire_flow import (
+    DEFAULT_FLOW,
+    get_next_question_id_from_answers,
+)
 from padel_wizard_bot.states.questionnaire import QuestionnaireStates
 from storage.repo import repository
 
 router = Router()
 logger = logging.getLogger(__name__)
-
 
 @router.message(QuestionnaireStates.waiting_for_answer)
 async def on_question_answer(message: Message, state: FSMContext) -> None:
@@ -73,7 +76,16 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
             "option_id": option.id,
         }
     )
-    await state.update_data(answers=answers)
+
+    next_question_id = DEFAULT_FLOW.resolve_next(
+        current_question_id=question.id,
+        option_id=option.id,
+    )
+
+    state_update: dict[str, Any] = {"answers": answers}
+    if next_question_id is not None:
+        state_update["current_question_id"] = next_question_id
+    await state.update_data(**state_update)
 
     session_id = state_data.get("session_id")
     if session_id is not None:
@@ -101,11 +113,6 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
             logger.exception(
                 "Failed to persist answers for session %s", session_id
             )
-
-    next_question_id = DEFAULT_FLOW.resolve_next(
-        current_question_id=question.id,
-        option_id=option.id,
-    )
 
     if next_question_id is None:
         if user:
@@ -161,10 +168,61 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
         return
 
     next_question = DEFAULT_FLOW.get_question(next_question_id)
-    await state.update_data(
-        current_question_id=next_question.id,
-    )
     await send_question(message, next_question)
+
+
+# ↓↓↓ Глобальный хендлер ДОЛЖЕН идти НИЖЕ ↓↓↓
+@router.message(StateFilter(None), F.text, ~F.text.startswith("/"))
+async def try_restore_questionnaire_state(
+    message: Message, state: FSMContext
+) -> None:
+    """Restore questionnaire FSM only when the user tries to continue."""
+
+    if await state.get_state() is not None:
+        return
+
+    user = message.from_user
+    if user is None:
+        logger.info("Questionnaire state restore skipped: message without user")
+        return
+
+    session = await repository.get_active_session_by_telegram_id(user.id)
+    if session is None:
+        logger.info(
+            "No active questionnaire session found for user %s", f"id={user.id}, username={user.username!r}"
+        )
+        return
+
+    next_question_id = get_next_question_id_from_answers(
+        DEFAULT_FLOW, session.answers
+    )
+    if next_question_id is None:
+        logger.info(
+            "Questionnaire session %s for user %s is already complete",
+            session.id,
+            f"id={user.id}, username={user.username!r}",
+        )
+        return
+
+    question = DEFAULT_FLOW.get_question(next_question_id)
+
+    logger.info(
+        "Restoring questionnaire session %s (number %s) for user %s at question %s",
+        session.id,
+        session.session_number,
+        f"id={user.id}, username={user.username!r}",
+        question.id,
+    )
+
+    await state.set_state(QuestionnaireStates.waiting_for_answer)
+    await state.update_data(
+        current_question_id=question.id,
+        answers=list(session.answers),
+        session_id=session.id,
+        session_number=session.session_number,
+    )
+
+    await send_question(message, question)
 
 
 @router.callback_query(FinalScreenCallback.filter())
