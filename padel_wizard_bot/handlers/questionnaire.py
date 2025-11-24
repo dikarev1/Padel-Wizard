@@ -20,7 +20,10 @@ from padel_wizard_bot.services.final_rating import (
     calculate_final_rating,
     get_target_level,
 )
-from padel_wizard_bot.services.questionnaire_flow import DEFAULT_FLOW
+from padel_wizard_bot.services.questionnaire_flow import (
+    DEFAULT_FLOW,
+    get_next_question_id_from_answers,
+)
 from padel_wizard_bot.states.questionnaire import QuestionnaireStates
 from storage.repo import repository
 

@@ -5,6 +5,7 @@ from .questionnaire_flow import (
     Question,
     QuestionnaireFlow,
     build_default_flow,
+    get_next_question_id_from_answers,
     DEFAULT_FLOW,
 )
 
@@ -13,5 +14,6 @@ __all__ = [
     "Question",
     "QuestionnaireFlow",
     "build_default_flow",
+    "get_next_question_id_from_answers",
     "DEFAULT_FLOW",
 ]
