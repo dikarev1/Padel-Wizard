@@ -124,7 +124,16 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
             "option_id": option.id,
         }
     )
-    await state.update_data(answers=answers)
+
+    next_question_id = DEFAULT_FLOW.resolve_next(
+        current_question_id=question.id,
+        option_id=option.id,
+    )
+
+    state_update: dict[str, Any] = {"answers": answers}
+    if next_question_id is not None:
+        state_update["current_question_id"] = next_question_id
+    await state.update_data(**state_update)
 
     session_id = state_data.get("session_id")
     if session_id is not None:
@@ -152,11 +161,6 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
             logger.exception(
                 "Failed to persist answers for session %s", session_id
             )
-
-    next_question_id = DEFAULT_FLOW.resolve_next(
-        current_question_id=question.id,
-        option_id=option.id,
-    )
 
     if next_question_id is None:
         if user:
@@ -212,9 +216,6 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
         return
 
     next_question = DEFAULT_FLOW.get_question(next_question_id)
-    await state.update_data(
-        current_question_id=next_question.id,
-    )
     await send_question(message, next_question)
 
 
