@@ -26,6 +26,8 @@ class AnimationCache:
 
         if self._file_id:
             return self._file_id
+        if not self._file_path.exists():
+            raise FileNotFoundError(self._file_path)
         return FSInputFile(self._file_path)
 
     def remember(self, file_id: str) -> None:

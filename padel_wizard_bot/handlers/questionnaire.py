@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import logging
-from pathlib import Path
 from typing import Any
 
 from aiogram import F, Router
@@ -11,50 +10,21 @@ from aiogram.types import CallbackQuery, Message
 
 from padel_wizard_bot.keyboards.questionnaire import (
     FinalScreenCallback,
-    build_question_keyboard,
     build_final_keyboard,
 )
 from padel_wizard_bot.handlers.start import cmd_start
+from padel_wizard_bot.handlers.question_sender import send_question
 from padel_wizard_bot.services.experience import calculate_player_experience
 from padel_wizard_bot.services.final_rating import (
     calculate_final_rating,
     get_target_level,
 )
-from padel_wizard_bot.services.media_cache import AnimationCache
-from padel_wizard_bot.services.questionnaire_flow import DEFAULT_FLOW, Question
+from padel_wizard_bot.services.questionnaire_flow import DEFAULT_FLOW
 from padel_wizard_bot.states.questionnaire import QuestionnaireStates
 from storage.repo import repository
 
 router = Router()
 logger = logging.getLogger(__name__)
-
-
-Q3_ANIMATION_CACHE = AnimationCache(
-    Path(__file__).resolve().parents[2] / "services" / "3_q.gif"
-)
-
-
-async def _send_question(message: Message, question: Question) -> None:
-    keyboard = build_question_keyboard(question)
-    await message.answer(
-        question.text,
-        reply_markup=keyboard.as_markup(resize_keyboard=True, one_time_keyboard=True),
-    )
-
-    if question.id == "q3":
-        try:
-            animation_message = await message.answer_animation(
-                animation=Q3_ANIMATION_CACHE.get_input()
-            )
-        except Exception:
-            logger.exception(
-                "Failed to send animation for question %s from %s",
-                question.id,
-                Q3_ANIMATION_CACHE.file_path,
-            )
-        else:
-            if animation_message.animation:
-                Q3_ANIMATION_CACHE.remember(animation_message.animation.file_id)
 
 
 @router.message(QuestionnaireStates.waiting_for_answer)
@@ -194,7 +164,7 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
     await state.update_data(
         current_question_id=next_question.id,
     )
-    await _send_question(message, next_question)
+    await send_question(message, next_question)
 
 
 @router.callback_query(FinalScreenCallback.filter())
