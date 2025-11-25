@@ -19,6 +19,9 @@ class UserRecord:
     id: int
     telegram_id: int
     username: Optional[str]
+    questionnaire_completed: bool
+    final_rating: Optional[str]
+    received_advice: bool
     created_at: str
 
 
@@ -79,7 +82,10 @@ class StorageRepository:
 
         def operation(connection: sqlite3.Connection) -> UserRecord:
             cursor = connection.execute(
-                "SELECT id, telegram_id, username, created_at FROM users WHERE telegram_id = ?",
+                (
+                    "SELECT id, telegram_id, username, questionnaire_completed, final_rating, "
+                    "received_advice, created_at FROM users WHERE telegram_id = ?"
+                ),
                 (telegram_id,),
             )
             row = cursor.fetchone()
@@ -90,25 +96,35 @@ class StorageRepository:
                         "UPDATE users SET username = ? WHERE telegram_id = ?",
                         (stored_username, telegram_id),
                     )
-                if username is not None and row["username"] != username:
-                    stored_username = username
                 return UserRecord(
                     id=row["id"],
                     telegram_id=row["telegram_id"],
                     username=stored_username,
+                    questionnaire_completed=bool(row["questionnaire_completed"]),
+                    final_rating=row["final_rating"],
+                    received_advice=bool(row["received_advice"]),
                     created_at=row["created_at"],
                 )
 
             now = datetime.now(timezone.utc).isoformat()
             cursor = connection.execute(
-                "INSERT INTO users (telegram_id, username, created_at) VALUES (?, ?, ?)",
-                (telegram_id, username, now),
+                (
+                    "INSERT INTO users (telegram_id, username, questionnaire_completed, final_rating, "
+                    "received_advice, created_at) VALUES (?, ?, ?, ?, ?, ?)"
+                ),
+                (telegram_id, username, 0, None, 0, now),
             )
             user_id = cursor.lastrowid
             if user_id is None:
                 raise RuntimeError("Failed to insert user: lastrowid is None")
             return UserRecord(
-                id=user_id, telegram_id=telegram_id, username=username, created_at=now
+                id=user_id,
+                telegram_id=telegram_id,
+                username=username,
+                questionnaire_completed=False,
+                final_rating=None,
+                received_advice=False,
+                created_at=now,
             )
 
         return await self._run(operation)
@@ -211,6 +227,29 @@ class StorageRepository:
 
         await self._run(operation)
 
+    async def set_user_questionnaire_status(
+        self,
+        telegram_id: int,
+        *,
+        completed: bool,
+        final_rating: Optional[str],
+        username: Optional[str] = None,
+    ) -> None:
+        """Update questionnaire completion status and final rating for the user."""
+
+        user = await self.get_or_create_user(telegram_id, username)
+
+        def operation(connection: sqlite3.Connection) -> None:
+            connection.execute(
+                (
+                    "UPDATE users SET questionnaire_completed = ?, final_rating = ? "
+                    "WHERE id = ?"
+                ),
+                (int(completed), final_rating, user.id),
+            )
+
+        await self._run(operation)
+
     async def get_session(self, session_id: int) -> Optional[SessionRecord]:
         """Fetch a session record by its internal identifier."""
 
@@ -239,6 +278,21 @@ class StorageRepository:
             )
 
         return await self._run(operation)
+
+    async def mark_user_received_advice(
+        self, telegram_id: int, username: Optional[str] = None
+    ) -> None:
+        """Flag that the user has requested advice on the final screen."""
+
+        user = await self.get_or_create_user(telegram_id, username)
+
+        def operation(connection: sqlite3.Connection) -> None:
+            connection.execute(
+                "UPDATE users SET received_advice = 1 WHERE id = ?",
+                (user.id,),
+            )
+
+        await self._run(operation)
 
     def _generate_session_number(self, connection: sqlite3.Connection) -> int:
         """Generate a random session number ensuring uniqueness."""
