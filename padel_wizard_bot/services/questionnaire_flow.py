@@ -59,7 +59,8 @@ class QuestionnaireFlow:
 def build_default_flow() -> QuestionnaireFlow:
     q6 = Question(
         id="q6",
-        text="Какими ударами ты владеешь?",
+        text="Вопрос 6️⃣ \ 6️⃣:\n\n"
+        "Наконец, какими ударами ты владеешь?",
         options=(
             AnswerOption("q6_opt1", "Forehand", None),
             AnswerOption("q6_opt2", "Forehand, Backhand", None),
@@ -75,7 +76,8 @@ def build_default_flow() -> QuestionnaireFlow:
 
     q5 = Question(
         id="q5",
-        text="Как бы ты описал свою игру от стекла?",
+        text="Вопрос 5️⃣ \ 6️⃣:\n\n"
+        "Как бы ты описал свою игру от стекла?",
         options=(
             AnswerOption("q5_opt1", "Не играю от стекла — мне проще сыграть с лёта", "q6"),
             AnswerOption("q5_opt2", "Иногда получается играть от заднего стекла", "q6"),
@@ -88,20 +90,22 @@ def build_default_flow() -> QuestionnaireFlow:
 
     q4 = Question(
         id="q4",
-        text="Как бы ты описал свою игру у сетки?",
+        text="Вопрос 4️⃣ \ 6️⃣:\n\n"
+        "Как бы ты описал свою игру <b>у сетки</b>?",
         options=(
             AnswerOption("q4_opt1", "Не выхожу к сетке", "q5"),
             AnswerOption("q4_opt2", "Очень редко выхожу к сетке", "q5"),
             AnswerOption("q4_opt3", "Выхожу к сетке, но чувствую себя неуверенно", "q5"),
-            AnswerOption("q4_opt4", "Могу ударить с лёту и forehand, и backhand, но с некоторыми трудностями", "q5"),
-            AnswerOption("q4_opt5", "Занимаю верную позицию у сетки и уверенно ударяю с лёту", "q5"),
-            AnswerOption("q4_opt6", "Атакую с лёту с силой и низким отскоком от стекла", "q5"),
+            AnswerOption("q4_opt4", "Могу ударить с лёту c двух рук, но с некоторыми трудностями", "q5"),
+            AnswerOption("q4_opt5", "Занимаю верную позицию у сетки и уверенно играю с лёту", "q5"),
+            AnswerOption("q4_opt6", "Атакую с лёту глубоко и с низким отскоком от стекла", "q5"),
         ),
     )
 
     q3 = Question(
         id="q3",
         text=(
+            "Вопрос 3️⃣ \ 6️⃣:\n\n"
             "Как бы ты оценил/а\n"
             "свой уровень надежности игры?\n"
             "Сложный мяч — это мяч с низким отскоком и высокой скоростью. "
@@ -124,11 +128,13 @@ def build_default_flow() -> QuestionnaireFlow:
     q2 = Question(
         id="q2",
         text=(
-            "Какой у тебя опыт\n"
-            "игры в *падел*? (значение в месяцах рассчитано исходя 2-3 двухчасовых игр в неделю)"
+        "Вопрос 2️⃣ \ 6️⃣:\n\n"
+        "Переходим к опыту* игры в Падел.\n"
+        "Как долго ты игрыаешь в Падел-теннис?\n" 
+        "(*Один месяц игры приведен из расчета в 3-5 часов в неделю)"
         ),
         options=(
-            AnswerOption("q2_hours_10", "меньше месяца", "q3"),
+            AnswerOption("q2_hours_10", "Меньше месяца", "q3"),
             AnswerOption("q2_hours_20_50", "1–2 месяца", "q3"),
             AnswerOption("q2_hours_50_100", "2–4 месяца", "q3"),
             AnswerOption("q2_hours_100_140", "4–6 месяца", "q3"),
@@ -142,10 +148,13 @@ def build_default_flow() -> QuestionnaireFlow:
 
     q1_1 = Question(
         id="q1.1",
-        text="Хорошо. Какой у тебя приблизительный опыт игры?",
+        text="Вопрос 1️⃣ \ 6️⃣:\n\n"
+        "Какой сумарный опыт* игры?\n\n"
+        "(*Один месяц игры приведен из расчета в 3-5 часов в неделю)"
+        ,
         options=(
-            AnswerOption("q1_1_hours_10", "меньше месяца", "q2"),
-            AnswerOption("q1_1_hours_20_50", "21–2 месяца", "q2"),
+            AnswerOption("q1_1_hours_10", "Меньше месяца", "q2"),
+            AnswerOption("q1_1_hours_20_50", "1–2 месяца", "q2"),
             AnswerOption("q1_1_hours_50_100", "2–4 месяца", "q2"),
             AnswerOption("q1_1_hours_100_140", "4–6 месяцев", "q2"),
             AnswerOption("q1_1_hours_120_190", "5–8 месяцев", "q2"),
@@ -158,7 +167,8 @@ def build_default_flow() -> QuestionnaireFlow:
 
     q1_2 = Question(
         id="q1.2",
-        text="Сколько часов опыта?",
+        text="Какой опыт игры в этот вид?"
+        ,
         options=(
             AnswerOption("hours_10", "10", "q2"),
             AnswerOption("hours_100", "100", "q2"),
@@ -169,23 +179,29 @@ def build_default_flow() -> QuestionnaireFlow:
 
     q1_sports = Question(
         id="q1.sports",
-        text="В каком у тебя больше всего наигранно часов?",
+        text=f"Вопрос 1️⃣ \ 6️⃣:\n\n"
+        "Супер! В каком у тебя сыграно заметно больше всего часов?\n"
+        "(если одного такого нет - выбери вариант «Несколько видов»)",
         options=(
             AnswerOption("racket_sport_tennis", "Большой теннис", "q1.1"),
             AnswerOption("racket_sport_table_tennis", "Настольный теннис", "q1.1"),
-            AnswerOption("racket_sport_squash", "Сквош", "q1.1"),
-            AnswerOption("racket_sport_badminton", "Бадминтон", "q1.1"),
+            AnswerOption("racket_sport_squash", "Бадминтон", "q1.1"),
+            AnswerOption("racket_sport_badminton", "Cквош", "q1.1"),
             AnswerOption("racket_sport_pickleball", "Пикклбол", "q1.1"),
-            AnswerOption("racket_sport_multiple", "Несколько видов ракетного спорта", "q1.1"),
+            AnswerOption("racket_sport_multiple", "Несколько видов", "q1.1"),
         ),
     )
 
     q1 = Question(
         id="q1",
-        text="Есть ли опыт в других ракетных видах спорта?",
+        text=(
+        "⬇︎\n"
+        "Вопрос 1️⃣ \ 6️⃣:\n\n"
+        "Есть ли у тебя <b>опыт игры</b> в другие виды спорта, в которых как и в Паддле <b>используется ракетка и мяч?</b>\n"
+        ),
         options=(
             AnswerOption("has_experience", "Да, у меня есть опыт", "q1.sports"),
-            AnswerOption("no_experience", "Нет, нет опыта", "q2"),
+            AnswerOption("no_experience", "Нет, у меня отсуствует или очень мало опыта", "q2"),
         ),
     )
 
