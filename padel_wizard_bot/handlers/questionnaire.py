@@ -125,6 +125,19 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
                 )
 
         final_rating = calculate_final_rating(answers)
+        if user:
+            try:
+                await repository.set_user_questionnaire_status(
+                    telegram_id=user.telegram_id,
+                    completed=True,
+                    final_rating=final_rating.level if final_rating else None,
+                    username=user.username,
+                )
+            except Exception:
+                logger.exception(
+                    "Failed to update questionnaire status for user %s",
+                    f"id={user.id}, username={user.username!r}",
+                )
         if final_rating is not None:
             target_level = get_target_level(final_rating.level)
             level_progression = f"{final_rating.level} => {target_level}"
@@ -196,4 +209,14 @@ async def on_final_screen_action(
         return
 
     await callback.answer()
+    if action == "advice" and user:
+        try:
+            await repository.mark_user_received_advice(
+                telegram_id=user.telegram_id, username=user.username
+            )
+        except Exception:
+            logger.exception(
+                "Failed to mark advice received for user %s",
+                f"id={user.id}, username={user.username!r}",
+            )
     await message.answer("вот твои советы")
