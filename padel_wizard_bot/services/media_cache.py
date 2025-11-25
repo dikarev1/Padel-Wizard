@@ -11,7 +11,7 @@ MediaInput = Union[FSInputFile, str]
 
 
 class AnimationCache:
-    """Caches Telegram ``file_id`` for a local animation file."""
+    """Caches Telegram ``file_id`` for a local animation/video file."""
 
     def __init__(self, file_path: Path) -> None:
         self._file_path = file_path

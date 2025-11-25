@@ -25,7 +25,7 @@ async def cmd_testgif(message: Message) -> None:
     except FileNotFoundError:
         logger.error("testgif: file not found: %s", Q3_ANIMATION_CACHE.file_path)
         await message.answer(
-            "Файл GIF не найден по пути:\n%s" % Q3_ANIMATION_CACHE.file_path
+            "Файл MP4 не найден по пути:\n%s" % Q3_ANIMATION_CACHE.file_path
         )
         return
 
