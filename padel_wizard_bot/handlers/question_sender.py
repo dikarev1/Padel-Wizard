@@ -14,14 +14,17 @@ logger = logging.getLogger(__name__)
 
 
 def _resolve_q3_animation_path() -> Path:
-    """Return an existing path for the q3 GIF, trying common locations.
+    """Return an existing path for the q3 MP4 animation, trying common locations.
 
     Preference order:
-    1. ``padel_wizard_bot/services/3_q.gif`` (bundled alongside the code)
-    2. ``services/3_q.gif`` in the project root (legacy location)
+    1. ``padel_wizard_bot/services/3_q.mp4`` (bundled alongside the code)
+    2. ``services/3_q.mp4`` in the project root (legacy location)
+    3. GIF fallbacks in the same locations (legacy content)
     """
 
     candidate_paths = [
+        Path(__file__).resolve().parent.parent / "services" / "3_q.mp4",
+        Path(__file__).resolve().parents[2] / "services" / "3_q.mp4",
         Path(__file__).resolve().parent.parent / "services" / "3_q.gif",
         Path(__file__).resolve().parents[2] / "services" / "3_q.gif",
     ]
@@ -38,7 +41,7 @@ Q3_ANIMATION_CACHE = AnimationCache(_resolve_q3_animation_path())
 
 
 async def send_question(message: Message, question: Question) -> None:
-    """Send question text and, for q3, an accompanying GIF."""
+    """Send question text and, for q3, an accompanying MP4 animation."""
 
     keyboard = build_question_keyboard(question)
     await message.answer(
