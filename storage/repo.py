@@ -96,8 +96,6 @@ class StorageRepository:
                         "UPDATE users SET username = ? WHERE telegram_id = ?",
                         (stored_username, telegram_id),
                     )
-                if username is not None and row["username"] != username:
-                    stored_username = username
                 return UserRecord(
                     id=row["id"],
                     telegram_id=row["telegram_id"],

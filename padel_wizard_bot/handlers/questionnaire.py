@@ -128,7 +128,7 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
         if user:
             try:
                 await repository.set_user_questionnaire_status(
-                    telegram_id=user.telegram_id,
+                    telegram_id=user.id,
                     completed=True,
                     final_rating=final_rating.level if final_rating else None,
                     username=user.username,
@@ -212,7 +212,7 @@ async def on_final_screen_action(
     if action == "advice" and user:
         try:
             await repository.mark_user_received_advice(
-                telegram_id=user.telegram_id, username=user.username
+                telegram_id=user.id, username=user.username
             )
         except Exception:
             logger.exception(
