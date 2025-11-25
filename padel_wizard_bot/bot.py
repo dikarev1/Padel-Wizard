@@ -4,6 +4,8 @@ import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
 
 from padel_wizard_bot.config import settings
 from padel_wizard_bot.handlers import questionnaire, start, testgif
@@ -34,7 +36,10 @@ async def main() -> None:
 
     logger.info("Starting bot polling")
     try:
-        async with Bot(bot_token) as bot:
+        async with Bot(
+            bot_token,
+            default=DefaultBotProperties(parse_mode=ParseMode.HTML),
+        ) as bot:
             await dispatcher.start_polling(bot)
     except Exception:
         logger.exception("Bot polling stopped due to an unexpected error")
