@@ -7,7 +7,12 @@ from typing import Any
 from aiogram import F, Router
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton, Message
+from aiogram.types import (
+    CallbackQuery,
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
+    Message,
+)
 
 from padel_wizard_bot.handlers.question_sender import send_question
 from padel_wizard_bot.services.questionnaire_flow import DEFAULT_FLOW
@@ -77,7 +82,7 @@ async def on_wizard_launch(callback: CallbackQuery, state: FSMContext) -> None:
         session = None
 
     message = callback.message
-    if message is None:
+    if not isinstance(message, Message):
         await callback.answer()
         return
 
