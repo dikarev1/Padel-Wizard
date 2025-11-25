@@ -142,14 +142,6 @@ class StorageRepository:
             if user.id is None:
                 raise RuntimeError("Failed to get user_id: user.id is None")
 
-            connection.execute(
-                (
-                    "UPDATE users SET questionnaire_completed = 0, final_rating = NULL, "
-                    "received_advice = 0 WHERE id = ?"
-                ),
-                (user.id,),
-            )
-
             session_number = self._generate_session_number(connection)
             now = datetime.now(timezone.utc).isoformat()
             cursor = connection.execute(
