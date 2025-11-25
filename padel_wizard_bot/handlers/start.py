@@ -38,7 +38,7 @@ async def cmd_start(message: Message) -> None:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="Launch the wizard",
+                    text="Запустить Padel Wizard",
                     callback_data="wizard_launch",
                 )
             ]
@@ -47,8 +47,9 @@ async def cmd_start(message: Message) -> None:
 
     await message.answer(
         (
-            "Hello!\n\n"
-            "This is Padel Wizard. Tap the button below to go on with the questionnaire."
+            "Привет! Я — <b>Padel Wizard</b> 🪄\n\n"
+            "Я задам тебе <b>7–8 вопросов</b>, чтобы ты узнал свой уровень игры в падел и получил персональные советы для улучшения.\n\n"
+            "Старайся отвечать честно - от этого зависит точность результата"
         ),
         reply_markup=keyboard,
     )
