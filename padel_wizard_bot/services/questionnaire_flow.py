@@ -62,14 +62,14 @@ def build_default_flow() -> QuestionnaireFlow:
         text="Вопрос 6️⃣ \ 6️⃣:\n\n"
         "Наконец, какими ударами ты владеешь?",
         options=(
-            AnswerOption("q6_opt1", "Forehand", None),
-            AnswerOption("q6_opt2", "Forehand, Backhand", None),
-            AnswerOption("q6_opt3", "Удары выше + Volley, Lob", None),
-            AnswerOption("q6_opt4", "Удары выше + Backhand Volley, half-Volley", None),
-            AnswerOption("q6_opt5", "Удары выше + Bandeja, flat Smash/x4", None),
+            AnswerOption("q6_opt1", "Форхенд", None),
+            AnswerOption("q6_opt2", "Удар выше  + Бэкхенд", None),
+            AnswerOption("q6_opt3", "Удары выше + Свеча", None),
+            AnswerOption("q6_opt4", "Удары выше + С лёту", None),
+            AnswerOption("q6_opt5", "Удары выше + Bandeja", None),
             AnswerOption("q6_opt6", "Удары выше + Bajada, Vibora", None),
             AnswerOption("q6_opt7", "Удары выше + Gancho/Rulo, Chiquita, Drop-shot", None),
-            AnswerOption("q6_opt8", "Удары выше + Smash x3/Topspin", None),
+            AnswerOption("q6_opt8", "Удары выше + Smash x3/x4/Topspin", None),
             AnswerOption("q6_opt9", "Практически все доступные удары и с контролем вращения", None),
         ),
     )
@@ -106,21 +106,21 @@ def build_default_flow() -> QuestionnaireFlow:
         id="q3",
         text=(
             "Вопрос 3️⃣ \ 6️⃣:\n\n"
-            "В скольких процентах случаев ты бы отбил *сложный мяч, примерно как на видео ниже?\n"
-            "*Сложный мяч — это мяч с низким отскоком и высокой скоростью. "
-            "Либо мяч, который застал игрока вне позиции в результате удачной комбинации ударов противника"
+            "Насколько стабильно у тебя получается возвращать сложные мячи? Примерно как на видео\n"
+            "*Сложный мяч — это мяч с низким отскоком и высокой скоростью, "
+            "либо мяч, который застал игрока вне позиции в результате удачной комбинации ударов противника"
             ""
         ),
         options=(
-            AnswerOption("q3_opt1", "Стараюсь просто попадать по мячу", "q4"),
-            AnswerOption("q3_opt2", "5-10%", "q4"),
-            AnswerOption("q3_opt3", "10–20%", "q4"),
-            AnswerOption("q3_opt4", "20–30%", "q4"),
-            AnswerOption("q3_opt5", "30–40%", "q4"),
-            AnswerOption("q3_opt6", "40–50%", "q4"),
-            AnswerOption("q3_opt7", "50–60%", "q4"),
-            AnswerOption("q3_opt8", "60-75%", "q4"),
-            AnswerOption("q3_opt9", "75%–90%", "q4"),
+            AnswerOption("q3_opt1", "в 0-5% случаев", "q4"),
+            AnswerOption("q3_opt2", "в 5-10% случаев", "q4"),
+            AnswerOption("q3_opt3", "в 10–20% случаев", "q4"),
+            AnswerOption("q3_opt4", "в 20–30% случаев", "q4"),
+            AnswerOption("q3_opt5", "в 30–40% случаев", "q4"),
+            AnswerOption("q3_opt6", "в 40–50% случаев", "q4"),
+            AnswerOption("q3_opt7", "в 50–60% случаев", "q4"),
+            AnswerOption("q3_opt8", "в 60-75% случаев", "q4"),
+            AnswerOption("q3_opt9", "в 75%–90% случаев", "q4"),
         ),
     )
 
@@ -130,16 +130,16 @@ def build_default_flow() -> QuestionnaireFlow:
         "Вопрос 2️⃣ \ 6️⃣:\n\n"
         "Переходим к опыту* игры в Падел.\n"
         "Как долго ты игрыаешь в Падел-теннис?\n" 
-        "(*Один месяц игры приведен из расчета в 3-5 часов в неделю)"
+        "(*Из расчета 3-4 часа в неделю)"
         ),
         options=(
             AnswerOption("q2_hours_10", "Меньше месяца", "q3"),
             AnswerOption("q2_hours_20_50", "1–2 месяца", "q3"),
             AnswerOption("q2_hours_50_100", "2–4 месяца", "q3"),
             AnswerOption("q2_hours_100_140", "4–6 месяца", "q3"),
-            AnswerOption("q2_hours_120_190", "5–8 месяцев", "q3"),
-            AnswerOption("q2_hours_190_290", "7–11 месяцев", "q3"),
-            AnswerOption("q2_hours_290_430", "10–15 месяцев", "q3"),
+            AnswerOption("q2_hours_120_190", "6–9 месяцев", "q3"),
+            AnswerOption("q2_hours_190_290", "9–12 месяцев", "q3"),
+            AnswerOption("q2_hours_290_430", "1.0–1.5 года", "q3"),
             AnswerOption("q2_hours_430_580", "1.5–2 года", "q3"),
             AnswerOption("q2_hours_580_plus", "2+ года", "q3"),
         ),
@@ -149,16 +149,16 @@ def build_default_flow() -> QuestionnaireFlow:
         id="q1.1",
         text="Вопрос 1️⃣ \ 6️⃣:\n\n"
         "Какой сумарный опыт* игры?\n\n"
-        "(*Один месяц игры приведен из расчета в 3-5 часов в неделю)"
+        "(*Из расчета 3-4 часа в неделю)"
         ,
         options=(
             AnswerOption("q1_1_hours_10", "Меньше месяца", "q2"),
             AnswerOption("q1_1_hours_20_50", "1–2 месяца", "q2"),
             AnswerOption("q1_1_hours_50_100", "2–4 месяца", "q2"),
             AnswerOption("q1_1_hours_100_140", "4–6 месяцев", "q2"),
-            AnswerOption("q1_1_hours_120_190", "5–8 месяцев", "q2"),
-            AnswerOption("q1_1_hours_190_290", "7–11 месяцев", "q2"),
-            AnswerOption("q1_1_hours_290_430", "10–15 месяцев", "q2"),
+            AnswerOption("q1_1_hours_120_190", "6–9 месяцев", "q2"),
+            AnswerOption("q1_1_hours_190_290", "9–12 месяцев", "q2"),
+            AnswerOption("q1_1_hours_290_430", "1.0–1.5 года", "q2"),
             AnswerOption("q1_1_hours_430_580", "1.5–2 года", "q2"),
             AnswerOption("q1_1_hours_580_plus", "2+ года", "q2"),
         ),
