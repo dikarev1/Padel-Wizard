@@ -143,7 +143,6 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
             level_progression = f"{final_rating.level} => {target_level}"
             final_text = (
                 f"Твой уровень {level_progression}\n\n"
-                "Выбери дальнейшее действие:"
             )
             logger.info(
                 "Final rating calculated: level=%s, target_level=%s, score=%.2f, experience_level=%s, skills=%s",
@@ -156,13 +155,15 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
         else:
             final_text = (
                 "Спасибо! Это финальный экран-заглушка. Здесь появится результат и рекомендации.\n\n"
-                "Выбери дальнейшее действие:"
             )
 
         await state.clear()
         final_keyboard = build_final_keyboard()
+        await message.answer(final_text)
         await message.answer(
-            final_text,
+            "Спасибо, за прохождение опросника!\n"
+            "Поделиться фидбеком и сообщить о проблемах: @dikarevp \n\n"
+            "Выберите дальнейшее действие:",
             reply_markup=final_keyboard.as_markup(),
         )
         if user:
