@@ -164,7 +164,7 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
             interpretation = _build_level_interpretation(
                 final_rating.level, target_level
             )
-            final_lines = [f"Твой уровень {level_progression}"]
+            final_lines = [f"Твой уровень игры в Падел-теннис: {level_progression}"]
             if interpretation:
                 final_lines.append(interpretation)
             final_lines.append("")
