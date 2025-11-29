@@ -36,7 +36,7 @@ def _build_level_interpretation(current_level: str, target_level: str) -> str:
 
     if current_description and target_description:
         return (
-            f"**{current_description}** переходящий в **{target_description}**"
+            f"<b>{current_description}</b> переходящий в <b>{target_description}</b>"
         )
     if current_description:
         return f"**{current_description}**"
@@ -159,7 +159,7 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
         if final_rating is not None:
             target_level = get_target_level(final_rating.level)
             level_progression = (
-                f"**{final_rating.level}** => **{target_level}**"
+                f"<b>{final_rating.level}</b> => <b>{target_level}</b>"
             )
             interpretation = _build_level_interpretation(
                 final_rating.level, target_level
@@ -188,7 +188,7 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
         await message.answer(final_text)
         await message.answer(
             "Спасибо, за прохождение опросника!\n"
-            "Поделиться фидбеком и сообщить о проблемах: @dikarevp \n\n"
+            "Поделиться фидбеком или сообщить о проблемах: @dikarevp \n\n"
             "Выберите дальнейшее действие:",
             reply_markup=final_keyboard.as_markup(),
         )
