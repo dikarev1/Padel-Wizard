@@ -8,7 +8,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
 from padel_wizard_bot.config import settings
-from padel_wizard_bot.handlers import questionnaire, start, testgif
+from padel_wizard_bot.handlers import errors, questionnaire, start, testgif
 from padel_wizard_bot.logging_config import setup_logging
 
 
@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 def create_dispatcher() -> Dispatcher:
     dispatcher = Dispatcher()
+    dispatcher.include_router(errors.router)
     dispatcher.include_router(start.router)
     dispatcher.include_router(questionnaire.router)
     dispatcher.include_router(testgif.router)
