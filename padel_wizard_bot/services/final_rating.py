@@ -38,6 +38,18 @@ LEVEL_ORDER: tuple[str, ...] = (
 MIN_EXPERIENCE_LEVEL = "E-"
 MAX_EXPERIENCE_LEVEL = "C+"
 
+LEVEL_DESCRIPTIONS: dict[str, str] = {
+    "E-": "Новичок",
+    "E": "Начинающий",
+    "E+": "Продвинутый начинающий",
+    "D-": "Базовый уровень",
+    "D": "Любитель",
+    "D+": "Продвинутый любитель",
+    "C-": "Начинающих средний",
+    "C": "Средний уровень",
+    "C+": "Продвинутый средний",
+}
+
 
 @dataclass(frozen=True)
 class FinalRating:
@@ -156,4 +168,10 @@ def get_target_level(level: str) -> str:
         return level
 
     return LEVEL_ORDER[next_index]
+
+
+def get_level_description(level: str) -> Optional[str]:
+    """Return human-readable description for a padel level if known."""
+
+    return LEVEL_DESCRIPTIONS.get(level)
 

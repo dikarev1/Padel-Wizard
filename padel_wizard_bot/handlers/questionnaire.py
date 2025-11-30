@@ -17,6 +17,7 @@ from padel_wizard_bot.handlers.question_sender import send_question
 from padel_wizard_bot.services.experience import calculate_player_experience
 from padel_wizard_bot.services.final_rating import (
     calculate_final_rating,
+    get_level_description,
     get_target_level,
 )
 from padel_wizard_bot.services.questionnaire_flow import DEFAULT_FLOW
@@ -25,6 +26,23 @@ from storage.repo import repository
 
 router = Router()
 logger = logging.getLogger(__name__)
+
+
+def _build_level_interpretation(current_level: str, target_level: str) -> str:
+    """Return human-readable progression between two padel levels."""
+
+    current_description = get_level_description(current_level)
+    target_description = get_level_description(target_level)
+
+    if current_description and target_description:
+        return (
+            f"<b>{current_description}</b> переходящий в <b>{target_description}</b>"
+        )
+    if current_description:
+        return f"**{current_description}**"
+    if target_description:
+        return f"**{target_description}**"
+    return ""
 
 
 @router.message(QuestionnaireStates.waiting_for_answer)
@@ -140,11 +158,18 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
                 )
         if final_rating is not None:
             target_level = get_target_level(final_rating.level)
-            level_progression = f"{final_rating.level} => {target_level}"
-            final_text = (
-                f"Твой уровень {level_progression}\n\n"
-                "Выбери дальнейшее действие:"
+            level_progression = (
+                f"<b>{final_rating.level}</b> => <b>{target_level}</b>"
             )
+            interpretation = _build_level_interpretation(
+                final_rating.level, target_level
+            )
+            final_lines = [f"Твой уровень игры в Падел-теннис: {level_progression}"]
+            if interpretation:
+                final_lines.append(interpretation)
+            final_lines.append("")
+            final_lines.append("@PadelWizard_bot")
+            final_text = "\n".join(final_lines) + "\n"
             logger.info(
                 "Final rating calculated: level=%s, target_level=%s, score=%.2f, experience_level=%s, skills=%s",
                 final_rating.level,
@@ -156,13 +181,15 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
         else:
             final_text = (
                 "Спасибо! Это финальный экран-заглушка. Здесь появится результат и рекомендации.\n\n"
-                "Выбери дальнейшее действие:"
             )
 
         await state.clear()
         final_keyboard = build_final_keyboard()
+        await message.answer(final_text)
         await message.answer(
-            final_text,
+            "Спасибо, за прохождение опросника!\n"
+            "Поделиться фидбеком или сообщить о проблемах: @dikarevp \n\n"
+            "Выберите дальнейшее действие:",
             reply_markup=final_keyboard.as_markup(),
         )
         if user:
