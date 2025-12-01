@@ -14,6 +14,7 @@ from padel_wizard_bot.keyboards.questionnaire import (
 )
 from padel_wizard_bot.handlers.start import cmd_start
 from padel_wizard_bot.handlers.question_sender import send_question
+from padel_wizard_bot.services.advice import get_advice_for_level
 from padel_wizard_bot.services.experience import calculate_player_experience
 from padel_wizard_bot.services.final_rating import (
     calculate_final_rating,
@@ -246,4 +247,29 @@ async def on_final_screen_action(
                 "Failed to mark advice received for user %s",
                 f"id={user.id}, username={user.username!r}",
             )
-    await message.answer("вот твои советы")
+    advice_text = None
+    if user:
+        try:
+            user_record = await repository.get_or_create_user(
+                telegram_id=user.id, username=user.username
+            )
+            advice_text = get_advice_for_level(user_record.final_rating)
+            logger.info(
+                "Advice requested by user %s with level %s",
+                f"id={user.id}, username={user.username!r}",
+                user_record.final_rating,
+            )
+        except Exception:
+            logger.exception(
+                "Failed to fetch advice for user %s",
+                f"id={user.id}, username={user.username!r}",
+            )
+
+    if advice_text is None:
+        await message.answer(
+            "Пока не могу подобрать советы: не удалось определить твой уровень. \n"
+            "Пройди опросник заново, чтобы мы смогли помочь тебе с рекомендациями."
+        )
+        return
+
+    await message.answer(advice_text)
