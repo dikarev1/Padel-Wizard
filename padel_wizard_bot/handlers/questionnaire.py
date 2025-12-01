@@ -158,18 +158,26 @@ async def on_question_answer(message: Message, state: FSMContext) -> None:
                 )
         if final_rating is not None:
             target_level = get_target_level(final_rating.level)
-            level_progression = (
-                f"<b>{final_rating.level}</b> => <b>{target_level}</b>"
-            )
-            interpretation = _build_level_interpretation(
-                final_rating.level, target_level
-            )
-            final_lines = [f"Твой уровень игры в Падел-теннис: {level_progression}"]
-            if interpretation:
-                final_lines.append(interpretation)
-            final_lines.append("")
-            final_lines.append("@PadelWizard_bot")
-            final_text = "\n".join(final_lines) + "\n"
+            if final_rating.level == "C+":
+                final_text = (
+                    "Твой уровень игры в Падел-теннис C+ или выше.\n"
+                    "К сожалению, я пока не умею определять уровень более сильных игроков.\n"
+                )
+            else:
+                level_progression = (
+                    f"<b>{final_rating.level}</b> => <b>{target_level}</b>"
+                )
+                interpretation = _build_level_interpretation(
+                    final_rating.level, target_level
+                )
+                final_lines = [
+                    f"Твой уровень игры в Падел-теннис: {level_progression}",
+                ]
+                if interpretation:
+                    final_lines.append(interpretation)
+                final_lines.append("")
+                final_lines.append("@PadelWizard_bot")
+                final_text = "\n".join(final_lines) + "\n"
             logger.info(
                 "Final rating calculated: level=%s, target_level=%s, score=%.2f, experience_level=%s, skills=%s",
                 final_rating.level,
