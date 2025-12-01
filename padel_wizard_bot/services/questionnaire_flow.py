@@ -63,12 +63,12 @@ def build_default_flow() -> QuestionnaireFlow:
         "Наконец, какими <b>ударами</b> ты владеешь?",
         options=(
             AnswerOption("q6_opt1", "Форхенд", None),
-            AnswerOption("q6_opt2", "Удар выше  + Бэкхенд", None),
+            AnswerOption("q6_opt2", "Форхенд + Бэкхенд", None),
             AnswerOption("q6_opt3", "Удары выше + Свеча", None),
-            AnswerOption("q6_opt4", "Удары выше + С лёту", None),
+            AnswerOption("q6_opt4", "Удары выше + С лёту/Volley", None),
             AnswerOption("q6_opt5", "Удары выше + Bandeja", None),
             AnswerOption("q6_opt6", "Удары выше + Bajada, Vibora", None),
-            AnswerOption("q6_opt7", "Удары выше + Gancho/Rulo, Chiquita, Drop-shot", None),
+            AnswerOption("q6_opt7", "Удары выше + Chiquita, Rulo/Ganch, Drop-shot", None),
             AnswerOption("q6_opt8", "Удары выше + Smash x3/x4/Topspin", None),
             AnswerOption("q6_opt9", "Практически все доступные удары и с контролем вращения", None),
         ),
@@ -120,7 +120,7 @@ def build_default_flow() -> QuestionnaireFlow:
             AnswerOption("q3_opt6", "в 40–50% случаев", "q4"),
             AnswerOption("q3_opt7", "в 50–60% случаев", "q4"),
             AnswerOption("q3_opt8", "в 60-75% случаев", "q4"),
-            AnswerOption("q3_opt9", "в 75%–90% случаев", "q4"),
+            AnswerOption("q3_opt9", "в 75%–95% случаев", "q4"),
         ),
     )
 
@@ -130,7 +130,7 @@ def build_default_flow() -> QuestionnaireFlow:
         "Вопрос 2️⃣ \ 6️⃣:\n\n"
         "Переходим к опыту* игры <b>в Падел-теннис</b>.\n"
         "Как долго ты игрыаешь в Падел-теннис?\n" 
-        "(*Из расчета 3-4 часа в неделю)"
+        "(*Из расчета <i>3-4 часа в неделю</i>)"
         ),
         options=(
             AnswerOption("q2_hours_10", "Меньше месяца", "q3"),
@@ -149,7 +149,7 @@ def build_default_flow() -> QuestionnaireFlow:
         id="q1.1",
         text="Вопрос 1️⃣ \ 6️⃣:\n\n"
         "Какой сумарный опыт* игры?\n\n"
-        "(*Из расчета 3-4 часа в неделю)"
+        "(*Из расчета <i>3-4 часа в неделю</i>)"
         ,
         options=(
             AnswerOption("q1_1_hours_10", "Меньше месяца", "q2"),
